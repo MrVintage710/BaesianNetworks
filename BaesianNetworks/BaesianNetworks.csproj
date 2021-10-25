@@ -38,15 +38,32 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="BaesNetwork.cs" />
+        <Compile Include="BaesNode.cs" />
+        <Compile Include="ParceManager.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>
-      <Content Include="BIF\alarm.bif" />
-      <Content Include="BIF\child.bif" />
-      <Content Include="BIF\hailfinder.bif" />
-      <Content Include="BIF\insurance.bif" />
-      <Content Include="BIF\win95pts.bif" />
+      <Content Include="BIF\alarm.bif">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="BIF\child.bif">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="BIF\dog.bif">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="BIF\hailfinder.bif">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="BIF\insurance.bif">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="BIF\test.bif" />
+      <Content Include="BIF\win95pts.bif">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
