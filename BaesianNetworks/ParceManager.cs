@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.Eventing.Reader;
 
 namespace BaesianNetworks {
@@ -25,6 +26,14 @@ namespace BaesianNetworks {
 			} while (hasNext() && cc != c);
 
 			return getHead();
+		}
+
+		public char getCurrent() {
+			return baseString[current];
+		}
+
+		public bool isCurrentWhitesapce() {
+			return Char.IsWhiteSpace(baseString, current);
 		}
 
 		public string next() {

@@ -60,7 +60,9 @@
       <Content Include="BIF\insurance.bif">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
-      <Content Include="BIF\test.bif" />
+      <Content Include="BIF\test.bif">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
       <Content Include="BIF\win95pts.bif">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
