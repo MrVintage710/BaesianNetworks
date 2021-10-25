@@ -31,9 +31,17 @@ namespace BaesianNetworks {
 		public char getCurrent() {
 			return baseString[current];
 		}
+		
+		public char getLast() {
+			return baseString[last];
+		}
 
 		public bool isCurrentWhitesapce() {
 			return Char.IsWhiteSpace(baseString, current);
+		}
+		
+		public bool isLastWhitesapce() {
+			return Char.IsWhiteSpace(baseString, last);
 		}
 
 		public string next() {
@@ -53,7 +61,19 @@ namespace BaesianNetworks {
 		}
 
 		public bool hasNext() {
-			return current < baseString.Length;
+			return current < baseString.Length - 1;
+		}
+
+		public int lastIndex() {
+			return last;
+		}
+
+		public int currentIndex() {
+			return current;
+		}
+
+		public int headLength() {
+			return current - last;
 		}
 	}
 }
