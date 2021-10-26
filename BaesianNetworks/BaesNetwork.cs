@@ -10,27 +10,41 @@ namespace BaesianNetworks {
 	public class BaesNetwork {
 		
 		private Dictionary<string, BaesNode> nodeMap = new Dictionary<string, BaesNode>();
-
+		private String networkName;
+		
+		private List<string> properties = new List<string>();
+		
 		public BaesNetwork(string filename) {
 			string file = File.ReadAllText("./BIF/" + filename);
 			var tokens = tokenize(file);
 			Console.WriteLine(string.Join(",\n", tokens));
+			parse(tokens);
+			Console.WriteLine(networkName);
 		}
 		
-		private List<TokenInfo> tokenize(string file) {
+		private Queue<TokenInfo> tokenize(string file) {
 			ParceManager manager = new ParceManager(file);
-			List<TokenInfo> tokens = new List<TokenInfo>();
+			Queue<TokenInfo> tokens = new Queue<TokenInfo>();
 
 			bool comment = false;
 			bool label = false;
 
+			int line = 1;
+			int col = 1;
+
 			while (manager.hasNext()) {
 				var head = manager.getHead();
-
+				col++;
+				
 				if (head == "//") comment = true;
 
+				if (manager.getCurrent() == '\n') {
+					line++;
+					col = 1;
+				}
+				
 				if (comment && manager.getCurrent() == '\n') {
-					tokens.Add(new TokenInfo(Token.COMMENT, head, manager.lastIndex(), manager.currentIndex()));
+					tokens.Enqueue(new TokenInfo(Token.COMMENT, head, line, col));
 					comment = false;
 					manager.mark();
 					continue;
@@ -38,43 +52,57 @@ namespace BaesianNetworks {
 
 				if (!comment) {
 					if (!label && manager.getCurrent() == '{') {
-						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager);
-						tokens.Add(new TokenInfo(Token.OPENBRACKET, manager.getCurrent().ToString(), manager.currentIndex(), manager.currentIndex()));
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.OPENBRACKET, manager.getCurrent().ToString(), line, col));
 						manager.mark();
 						continue;
 					}
 					
 					if (!label && manager.getCurrent() == '}') {
-						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager);
-						tokens.Add(new TokenInfo(Token.CLOSEBRACKET, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.CLOSEBRACKET, manager.getCurrent().ToString(), line, col));
 						manager.mark();
 						continue;
 					}
 
 					if (!label && manager.getCurrent() == '(') {
-						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager);
-						tokens.Add(new TokenInfo(Token.OPENPARENTHESES, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.OPENPARENTHESES, manager.getCurrent().ToString(), line, col));
 						manager.mark();
 						continue;
 					}
 
 					if (!label && manager.getCurrent() == ')') {
-						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager);
-						tokens.Add(new TokenInfo(Token.CLOSEPARENTHESES, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.CLOSEPARENTHESES, manager.getCurrent().ToString(), line, col));
+						manager.mark();
+						continue;
+					}
+					
+					if (!label && manager.getCurrent() == '[') {
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.OPENSQUAREBRACKET, manager.getCurrent().ToString(), line, col));
+						manager.mark();
+						continue;
+					}
+
+					if (!label && manager.getCurrent() == ']') {
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.CLOSESQUAREBRACKET, manager.getCurrent().ToString(), line, col));
 						manager.mark();
 						continue;
 					}
 
 					if (manager.getCurrent() == ';') {
-						if (manager.headLength() > 0) processHead(head, tokens, manager);
-						tokens.Add(new TokenInfo(Token.ENDLINE, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
+						if (manager.headLength() > 0) processHead(head, tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.ENDLINE, manager.getCurrent().ToString(), line, col));
 						manager.mark();
 						continue;
 					}
 					
 					if (manager.getCurrent() == ',') {
-						if (manager.headLength() > 0) processHead(head, tokens, manager);
-						tokens.Add(new TokenInfo(Token.COMMA, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
+						if (manager.headLength() > 0) processHead(head, tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.COMMA, manager.getCurrent().ToString(), line, col));
 						manager.mark();
 						continue;
 					}
@@ -82,7 +110,7 @@ namespace BaesianNetworks {
 					if (manager.getCurrent() == '"') {
 						if (label) {
 							label = false;
-							tokens.Add(new TokenInfo(Token.LABEL, head.Substring(1), manager.lastIndex(), manager.currentIndex()));
+							tokens.Enqueue(new TokenInfo(Token.LABEL, head.Substring(1), line, col));
 							manager.mark();
 							continue;
 						} else {
@@ -92,7 +120,7 @@ namespace BaesianNetworks {
 
 					if (manager.isCurrentWhitesapce() && !label) {
 						if (manager.isLastWhitesapce()) {
-							//tokens.Add(new TokenInfo(Token.UNKNOWN, head, manager.lastIndex(), manager.currentIndex()));
+							//tokens.Enqueue(new TokenInfo(Token.UNKNOWN, head, line, col));
 							manager.mark();
 							continue;
 						}
@@ -101,13 +129,12 @@ namespace BaesianNetworks {
 						bool isNumeric = decimal.TryParse(head, out i);
 
 						if (isNumeric) {
-							tokens.Add(new TokenInfo(Token.NUMBER, head, manager.lastIndex(), manager.currentIndex()));
+							tokens.Enqueue(new TokenInfo(Token.NUMBER, head, line, col));
 							manager.mark();
 							continue;
 						}
 						else {
-							tokens.Add(new TokenInfo(Token.INDENTIFIER, head, manager.lastIndex(),
-								manager.currentIndex()));
+							tokens.Enqueue(new TokenInfo(Token.INDENTIFIER, head, line, col));
 							manager.mark();
 							continue;
 						}
@@ -120,9 +147,9 @@ namespace BaesianNetworks {
 			return tokens;
 		}
 
-		private void processHead(string head, List<TokenInfo> tokens, ParceManager manager) {
+		private void processHead(string head, Queue<TokenInfo> tokens, ParceManager manager, int line, int col) {
 			if (manager.isLastWhitesapce()) {
-				//tokens.Add(new TokenInfo(Token.UNKNOWN, head, manager.lastIndex(), manager.currentIndex()));
+				//tokens.Enqueue(new TokenInfo(Token.UNKNOWN, head, line, col));
 				return;
 			}
 						
@@ -130,10 +157,112 @@ namespace BaesianNetworks {
 			bool isNumeric = decimal.TryParse(head, out i);
 
 			if (isNumeric) {
-				tokens.Add(new TokenInfo(Token.NUMBER, head, manager.lastIndex(), manager.currentIndex()));
+				tokens.Enqueue(new TokenInfo(Token.NUMBER, head, line, col));
 			} else {
-				tokens.Add(new TokenInfo(Token.INDENTIFIER, head, manager.lastIndex(), manager.currentIndex()));
+				tokens.Enqueue(new TokenInfo(Token.INDENTIFIER, head, line, col));
 			}
+		}
+
+		private void parse(Queue<TokenInfo> tokens) {
+			while (tokens.Count > 0) {
+				var current = tokens.Dequeue();
+
+				if (current.TokenType == Token.INDENTIFIER) {
+					if(current.Value == "network") parseNetwork(tokens);
+					if(current.Value == "variable") parseVariable(tokens);
+				}
+			}
+		}
+
+		private void parseVariable(Queue<TokenInfo> tokens) {
+			var variableName = tokens.Dequeue();
+			checkToken(variableName, Token.INDENTIFIER);
+			
+			checkToken(tokens.Dequeue(), Token.OPENBRACKET);
+
+			var properties = new List<string>();
+			var types = new List<string>();
+
+			bool hasDefinedType = false;
+			
+			TokenInfo current;
+			do {
+				current = tokens.Dequeue();
+				if (current.TokenType == Token.INDENTIFIER && current.Value == "property") properties.AddRange(parseProperty(tokens));
+				if (current.TokenType == Token.INDENTIFIER && current.Value == "type" && hasDefinedType)
+					throw new TypeAlreadyDefinedException(variableName.Value);
+				if (current.TokenType == Token.INDENTIFIER && current.Value == "type" && !hasDefinedType) {
+					types.AddRange(parseType(tokens));
+					hasDefinedType = true;
+				}
+			} while (current.TokenType != Token.CLOSEBRACKET);
+			
+			var node = new BaesNode(types.ToArray());
+			nodeMap.Add(variableName.Value, node);
+		}
+
+		private void parseNetwork(Queue<TokenInfo> tokens) {
+			var networkName = tokens.Dequeue();
+			checkToken(networkName, Token.INDENTIFIER);
+
+			this.networkName = networkName.Value;
+
+			checkToken(tokens.Dequeue(), Token.OPENBRACKET);
+
+			TokenInfo current;
+			do {
+				current = tokens.Dequeue();
+				if (current.TokenType == Token.INDENTIFIER && current.Value == "property") properties.AddRange(parseProperty(tokens));
+			} while (current.TokenType != Token.CLOSEBRACKET);
+		}
+
+		private string[] parseProperty(Queue<TokenInfo> tokens) {
+			List<string> comments = new List<string>();
+			
+			TokenInfo current;
+			do {
+				current = tokens.Dequeue();
+				if(current.TokenType == Token.ENDLINE) break;
+				if (current.TokenType == Token.LABEL) comments.Add(current.Value);
+				else throw new InvalidTokenException(current, Token.LABEL);
+			} while (current.TokenType != Token.ENDLINE);
+
+			return comments.ToArray();
+		}
+
+		private string[] parseType(Queue<TokenInfo> tokens) {
+			var typeDescription = tokens.Dequeue();
+			checkToken(typeDescription, Token.INDENTIFIER);
+			
+			checkToken(tokens.Dequeue(), Token.OPENSQUAREBRACKET);
+
+			var amountToken = tokens.Dequeue();
+			checkToken(amountToken, Token.NUMBER);
+			var amount = double.Parse(amountToken.Value);
+			
+			checkToken(tokens.Dequeue(), Token.CLOSESQUAREBRACKET);
+			checkToken(tokens.Dequeue(), Token.OPENBRACKET);
+
+			var types = new List<string>();
+			
+			for (var i = 0; i < amount; i++) {
+				var current = tokens.Dequeue();
+				if(current.TokenType == Token.CLOSEBRACKET)
+					throw new NotEnoughTypesException(i, (int) amount);
+				
+				checkToken(current, Token.INDENTIFIER);
+				types.Add(current.Value);
+			}
+
+			checkToken(tokens.Dequeue(), Token.CLOSEBRACKET);
+			checkToken(tokens.Dequeue(), Token.ENDLINE);
+			
+			return types.ToArray();
+		}
+
+		private void checkToken(TokenInfo tokenInfo, Token token) {
+			if(tokenInfo.TokenType != token)
+				throw new InvalidTokenException(tokenInfo, token);
 		}
 	}
 
@@ -145,6 +274,8 @@ namespace BaesianNetworks {
 		CLOSEBRACKET,
 		OPENPARENTHESES,
 		CLOSEPARENTHESES,
+		OPENSQUAREBRACKET,
+		CLOSESQUAREBRACKET,
 		COMMENT,
 		ENDLINE,
 		COMMA,
@@ -152,27 +283,41 @@ namespace BaesianNetworks {
 	}
 
 	public class TokenInfo {
-		private int startingIndex, endingIndex;
+		private int line, col;
 		private String value;
 		private Token tokenType;
 
-		public TokenInfo(Token tokenType, string value, int startingIndex, int endingIndex) {
-			this.startingIndex = startingIndex;
-			this.endingIndex = endingIndex;
+		public TokenInfo(Token tokenType, string value, int line, int col) {
+			this.line = line;
+			this.col = col;
 			this.value = value;
 			this.tokenType = tokenType;
 		}
 
-		public int StartingIndex => startingIndex;
+		public int Line => line;
 
-		public int EndingIndex => endingIndex;
+		public int Col => col;
 
 		public string Value => value;
 
 		public Token TokenType => tokenType;
 
 		public override string ToString() {
-			return "[" + tokenType.ToString() + ": '" + value + "' (" + startingIndex + ", " + endingIndex +")]";
+			return "[" + tokenType + ": '" + value + "' (" + line + ", " + col +")]";
 		}
+	}
+
+	public class InvalidTokenException : Exception {
+
+		public InvalidTokenException(TokenInfo info, Token expected) : base("(" + info.Line + ", " + info.Col + ") '" + expected + "' expected, found " + info.TokenType + ".") {}
+		
+	}
+
+	public class NotEnoughTypesException : Exception {
+		public NotEnoughTypesException(int found, int required) : base("") { }
+	}
+	
+	public class TypeAlreadyDefinedException : Exception {
+		public TypeAlreadyDefinedException(string propertyName) : base("A type is already defined for property '" + propertyName  + "'") { }
 	}
 }

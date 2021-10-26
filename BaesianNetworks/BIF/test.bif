@@ -1,9 +1,9 @@
 //Comments should work
-network "test" {
+network test {
     property "This is a test network";
 }
 
-variable "is-dumb" { type discrete[2] {  "true"  "false" }; }
+variable is-dumb { type discrete[2] {  true  false }; }
 
 probability( "is-dumb" ) {
 	table 0.15 0.85;
