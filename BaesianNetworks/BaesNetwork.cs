@@ -37,35 +37,49 @@ namespace BaesianNetworks {
 				}
 
 				if (!comment) {
-					if (manager.getCurrent() == '{') {
-						if (manager.headLength() > 0) tokens.Add(new TokenInfo(Token.INDENTIFIER, head.Substring(0, head.Length), manager.getLast(), manager.getCurrent() - 1));
+					if (!label && manager.getCurrent() == '{') {
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager);
 						tokens.Add(new TokenInfo(Token.OPENBRACKET, manager.getCurrent().ToString(), manager.currentIndex(), manager.currentIndex()));
 						manager.mark();
 						continue;
 					}
 					
-					if (manager.getCurrent() == '}') {
-						if (manager.headLength() > 0) tokens.Add(new TokenInfo(Token.INDENTIFIER, head.Substring(0, head.Length), manager.getLast(), manager.getCurrent() - 1));
+					if (!label && manager.getCurrent() == '}') {
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager);
 						tokens.Add(new TokenInfo(Token.CLOSEBRACKET, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
 						manager.mark();
 						continue;
 					}
 
-					if (manager.getCurrent() == '(') {
-						if (manager.headLength() > 0) tokens.Add(new TokenInfo(Token.INDENTIFIER, head.Substring(0, head.Length), manager.getLast(), manager.getCurrent() - 1));
+					if (!label && manager.getCurrent() == '(') {
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager);
 						tokens.Add(new TokenInfo(Token.OPENPARENTHESES, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
 						manager.mark();
 						continue;
 					}
 
-					if (manager.getCurrent() == ')') {
-						if (manager.headLength() > 0) tokens.Add(new TokenInfo(Token.INDENTIFIER, head.Substring(0, head.Length), manager.getLast(), manager.getCurrent() - 1));
+					if (!label && manager.getCurrent() == ')') {
+						if (manager.headLength() > 0) processHead(head.Substring(0, head.Length), tokens, manager);
 						tokens.Add(new TokenInfo(Token.CLOSEPARENTHESES, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
 						manager.mark();
 						continue;
 					}
 
-					if (!comment && manager.getCurrent() == '"') {
+					if (manager.getCurrent() == ';') {
+						if (manager.headLength() > 0) processHead(head, tokens, manager);
+						tokens.Add(new TokenInfo(Token.ENDLINE, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
+						manager.mark();
+						continue;
+					}
+					
+					if (manager.getCurrent() == ',') {
+						if (manager.headLength() > 0) processHead(head, tokens, manager);
+						tokens.Add(new TokenInfo(Token.COMMA, manager.getCurrent().ToString(), manager.lastIndex(), manager.currentIndex()));
+						manager.mark();
+						continue;
+					}
+
+					if (manager.getCurrent() == '"') {
 						if (label) {
 							label = false;
 							tokens.Add(new TokenInfo(Token.LABEL, head.Substring(1), manager.lastIndex(), manager.currentIndex()));
@@ -75,7 +89,7 @@ namespace BaesianNetworks {
 							label = true;
 						}
 					}
-					
+
 					if (manager.isCurrentWhitesapce() && !label) {
 						if (manager.isLastWhitesapce()) {
 							//tokens.Add(new TokenInfo(Token.UNKNOWN, head, manager.lastIndex(), manager.currentIndex()));
@@ -105,6 +119,22 @@ namespace BaesianNetworks {
 
 			return tokens;
 		}
+
+		private void processHead(string head, List<TokenInfo> tokens, ParceManager manager) {
+			if (manager.isLastWhitesapce()) {
+				//tokens.Add(new TokenInfo(Token.UNKNOWN, head, manager.lastIndex(), manager.currentIndex()));
+				return;
+			}
+						
+			decimal i = 0;
+			bool isNumeric = decimal.TryParse(head, out i);
+
+			if (isNumeric) {
+				tokens.Add(new TokenInfo(Token.NUMBER, head, manager.lastIndex(), manager.currentIndex()));
+			} else {
+				tokens.Add(new TokenInfo(Token.INDENTIFIER, head, manager.lastIndex(), manager.currentIndex()));
+			}
+		}
 	}
 
 	public enum Token {
@@ -116,6 +146,8 @@ namespace BaesianNetworks {
 		OPENPARENTHESES,
 		CLOSEPARENTHESES,
 		COMMENT,
+		ENDLINE,
+		COMMA,
 		UNKNOWN
 	}
 
