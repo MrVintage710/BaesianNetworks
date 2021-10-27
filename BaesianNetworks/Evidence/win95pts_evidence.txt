@@ -1,0 +1,7 @@
+(a) Report [Problem1, Problem2, Problem3, Problem4, Problem5, Problem6]
+(b) Evidence: Problem1=No_Output.
+(c) Evidence: Problem2=Too_Long.
+(d) Evidence: Problem3=No.
+(e) Evidence: Problem4=No.
+(f) Evidence: Problem5=No.
+(g) Evidence: Problem6=Yes.

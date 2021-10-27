@@ -1,0 +1,3 @@
+(a) Report [SatContMoist, LLIW]
+(b) Little Evidence: RSFcst=XNIL; N32StarFcst=XNIL; MountainFcst=XNIL; AreaMoDryAir=VeryWet.
+(c) Moderate Evidence: RSFcst=XNIL; N32StarFcst=XNIL; MountainFcst=XNIL; AreaMoDryAir=VeryWet; CombVerMo=Down; AreaMeso_ALS=Down; CurPropConv=Strong.

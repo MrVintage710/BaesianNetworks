@@ -38,6 +38,8 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Driver.cs" />
+        <Compile Include="Evidence.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
@@ -47,6 +49,11 @@
       <Content Include="BIF\hailfinder.bif" />
       <Content Include="BIF\insurance.bif" />
       <Content Include="BIF\win95pts.bif" />
+      <Content Include="Evidence\alarm_evidence.txt" />
+      <Content Include="Evidence\child_evidence" />
+      <Content Include="Evidence\hailfinder_evidence.txt" />
+      <Content Include="Evidence\insurance_evidence" />
+      <Content Include="Evidence\win95pts_evidence.txt" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

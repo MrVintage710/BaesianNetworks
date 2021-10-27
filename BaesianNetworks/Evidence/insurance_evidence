@@ -1,0 +1,3 @@
+(a) Report [MedCost, ILiCost, PropCost]
+(b) Little Evidence: Age=Adolescent; GoodStudent=False; SeniorTrain=False; DrivQuality=Poor.
+(c) Moderate Evidence: Age=Adolescent; GoodStudent=False; SeniorTrain=False; DrivQuality=Poor; MakeModel=Luxury; CarValue=FiftyThousand; DrivHistory=Zero.
