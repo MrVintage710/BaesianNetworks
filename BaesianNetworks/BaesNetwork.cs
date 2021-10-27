@@ -247,14 +247,17 @@ namespace BaesianNetworks {
 			
 			for (var i = 0; i < amount; i++) {
 				var current = tokens.Dequeue();
-				if(current.TokenType == Token.CLOSEBRACKET)
-					throw new NotEnoughTypesException(i, (int) amount);
 				
 				checkToken(current, Token.INDENTIFIER);
 				types.Add(current.Value);
+
+				var next = tokens.Dequeue();
+				if((i + 1 >= 2 && next.TokenType == Token.CLOSEBRACKET)) continue;
+				if (next.TokenType != Token.COMMA) {
+					throw new NotEnoughTypesException();
+				}
 			}
 
-			checkToken(tokens.Dequeue(), Token.CLOSEBRACKET);
 			checkToken(tokens.Dequeue(), Token.ENDLINE);
 			
 			return types.ToArray();
@@ -314,7 +317,7 @@ namespace BaesianNetworks {
 	}
 
 	public class NotEnoughTypesException : Exception {
-		public NotEnoughTypesException(int found, int required) : base("") { }
+		public NotEnoughTypesException() : base("") { }
 	}
 	
 	public class TypeAlreadyDefinedException : Exception {
