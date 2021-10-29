@@ -106,6 +106,13 @@ namespace BaesianNetworks {
 						manager.mark();
 						continue;
 					}
+					
+					if (manager.getCurrent() == '|') {
+						if (manager.headLength() > 0) processHead(head, tokens, manager, line, col);
+						tokens.Enqueue(new TokenInfo(Token.BAR, manager.getCurrent().ToString(), line, col));
+						manager.mark();
+						continue;
+					}
 
 					if (manager.getCurrent() == '"') {
 						if (label) {
@@ -170,7 +177,31 @@ namespace BaesianNetworks {
 				if (current.TokenType == Token.INDENTIFIER) {
 					if(current.Value == "network") parseNetwork(tokens);
 					if(current.Value == "variable") parseVariable(tokens);
+					if(current.Value == "probability") parseProbability(tokens);
 				}
+			}
+		}
+
+		private void parseProbability(Queue<TokenInfo> tokens) {
+			checkToken(tokens.Dequeue(), Token.OPENPARENTHESES);
+			parseStatement(tokens);
+			
+		}
+
+		private void parseStatement(Queue<TokenInfo> tokens) {
+			var variable = tokens.Dequeue();
+			checkToken(variable, Token.INDENTIFIER);
+			
+			var bar = tokens.Dequeue();
+			if(bar.TokenType == Token.CLOSEPARENTHESES) return;
+			checkToken(bar, Token.BAR);
+			
+			while(true) {
+				var parent = tokens.Dequeue();
+				checkToken(parent, Token.INDENTIFIER);
+
+				var next = tokens.Dequeue();
+				if(next.TokenType == Token.CLOSEPARENTHESES) break;
 			}
 		}
 
@@ -282,6 +313,7 @@ namespace BaesianNetworks {
 		COMMENT,
 		ENDLINE,
 		COMMA,
+		BAR,
 		UNKNOWN
 	}
 
