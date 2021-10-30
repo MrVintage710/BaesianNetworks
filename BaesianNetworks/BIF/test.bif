@@ -10,11 +10,11 @@ variable B { type discrete[2] { true, false }; }
 variable C { type discrete[2] { true, false }; }
 
 probability( A ) {
-	table 0.50 0.50;
+	table 0.50, 0.50;
 }
 
 probability( B ) {
-    table 0.50 0.50;
+    table 0.50, 0.50;
 }
 
 probability( C | A, B ) {

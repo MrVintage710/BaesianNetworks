@@ -184,25 +184,79 @@ namespace BaesianNetworks {
 
 		private void parseProbability(Queue<TokenInfo> tokens) {
 			checkToken(tokens.Dequeue(), Token.OPENPARENTHESES);
-			parseStatement(tokens);
+			var nodes = parseStatement(tokens);
+
+			checkToken(tokens.Dequeue(), Token.OPENBRACKET);
 			
+			int expectedVariables = nodes.Item1.numberOfValues();
+			foreach (var parent in nodes.Item2) {
+				expectedVariables *= parent.numberOfValues();
+			}
+
+			int amountOfVariables = 0;
+			while (true) {
+				var current = tokens.Dequeue();
+				if (current.TokenType == Token.INDENTIFIER && current.Value == "table") {
+					var props = parseList(tokens);
+					//Table logic
+					amountOfVariables = props.Length;
+					break;
+				}
+				if (current.TokenType == Token.OPENPARENTHESES) {
+					parseTableEntry(tokens, nodes.Item1, nodes.Item2);
+				}
+				if(current.TokenType == Token.CLOSEBRACKET) break;
+			}
+			
+			//if(amountOfVariables != expectedVariables) throw new Exception("Not enough variables.");
 		}
 
-		private void parseStatement(Queue<TokenInfo> tokens) {
+		private Tuple<BaesNode, BaesNode[]> parseStatement(Queue<TokenInfo> tokens) {
 			var variable = tokens.Dequeue();
 			checkToken(variable, Token.INDENTIFIER);
+			checkNode(variable);
+			BaesNode baseNode = nodeMap[variable.Value];
 			
 			var bar = tokens.Dequeue();
-			if(bar.TokenType == Token.CLOSEPARENTHESES) return;
+			if(bar.TokenType == Token.CLOSEPARENTHESES) 
+				return new Tuple<BaesNode, BaesNode[]>(baseNode, new BaesNode[]{});
 			checkToken(bar, Token.BAR);
+			
+			List<BaesNode> parents = new List<BaesNode>();
 			
 			while(true) {
 				var parent = tokens.Dequeue();
 				checkToken(parent, Token.INDENTIFIER);
+				checkNode(parent);
 
+				parents.Add(nodeMap[parent.Value]);
+				
 				var next = tokens.Dequeue();
 				if(next.TokenType == Token.CLOSEPARENTHESES) break;
 			}
+			
+			return new Tuple<BaesNode, BaesNode[]>(baseNode, parents.ToArray());
+		}
+
+		private double[] parseList(Queue<TokenInfo> tokens) {
+			List<double> numbers = new List<double>();
+			while (true) {
+				var current = tokens.Dequeue();
+				if (current.TokenType == Token.NUMBER) {
+					numbers.Add(Double.Parse(current.Value));
+					var next = tokens.Dequeue();
+					if(next.TokenType == Token.COMMA) continue;
+					else if(next.TokenType == Token.ENDLINE) break;
+					else throw new InvalidTokenException(next, Token.COMMA, Token.ENDLINE);
+				}
+				else throw new InvalidTokenException(current, Token.NUMBER);
+			}
+
+			return numbers.ToArray();
+		}
+
+		private void parseTableEntry(Queue<TokenInfo> tokens, BaesNode node, BaesNode[] parentNodes) {
+			//parse the entry;
 		}
 
 		private void parseVariable(Queue<TokenInfo> tokens) {
@@ -298,6 +352,11 @@ namespace BaesianNetworks {
 			if(tokenInfo.TokenType != token)
 				throw new InvalidTokenException(tokenInfo, token);
 		}
+
+		private void checkNode(TokenInfo info) {
+			if(!nodeMap.ContainsKey(info.Value))
+				throw new InvalidVariableException(info);
+		}
 	}
 
 	public enum Token {
@@ -342,17 +401,23 @@ namespace BaesianNetworks {
 		}
 	}
 
-	public class InvalidTokenException : Exception {
+	class InvalidTokenException : Exception {
 
-		public InvalidTokenException(TokenInfo info, Token expected) : base("(" + info.Line + ", " + info.Col + ") '" + expected + "' expected, found " + info.TokenType + ".") {}
+		public InvalidTokenException(TokenInfo info, params Token[] expected) 
+			: base("(" + info.Line + ", " + info.Col + ") '" + string.Join(" or ", expected) + "' expected, found " + info.TokenType + ".") {}
 		
 	}
 
-	public class NotEnoughTypesException : Exception {
+	class NotEnoughTypesException : Exception {
 		public NotEnoughTypesException() : base("") { }
 	}
 	
-	public class TypeAlreadyDefinedException : Exception {
+	class TypeAlreadyDefinedException : Exception {
 		public TypeAlreadyDefinedException(string propertyName) : base("A type is already defined for property '" + propertyName  + "'") { }
+	}
+
+	class InvalidVariableException : Exception {
+		public InvalidVariableException(TokenInfo info) : 
+			base("(" + info.Line + ", " + info.Col + ") Variable Does not exist in the current context: '" + info.Value +"'"){ }
 	}
 }

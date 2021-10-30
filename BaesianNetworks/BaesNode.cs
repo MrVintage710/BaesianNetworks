@@ -6,6 +6,7 @@ namespace BaesianNetworks {
 		private string[] values; 
 		List<BaesNode> children = new List<BaesNode>();
 		List<BaesNode> parents = new List<BaesNode>();
+		List<int[]> tableEntries = new List<int[]>();
 
 		public BaesNode(params string[] values) {
 			this.values = values;
@@ -17,6 +18,13 @@ namespace BaesianNetworks {
 		
 		public void addParents(params BaesNode[] nodes) {
 			parents.AddRange(nodes);
+			tableEntries.Clear();
+		}
+
+		public void addEntry(params int[] values) {
+			int expectedSize = parents.Count + values.Length;
+			if(values.Length != expectedSize) return;
+			tableEntries.Add(values);
 		}
 
 		public BaesNode[] getChildren() {
@@ -29,6 +37,26 @@ namespace BaesianNetworks {
 
 		public string getValue(int index) {
 			return values[index];
+		}
+
+		public int getIndex(string value) {
+			for (var i = 0; i < values.Length; i++) {
+				if (values[i] == value) return i;
+			}
+
+			return -1;
+		}
+		
+		public bool containsValue(string value) {
+			foreach (var v in values) {
+				if (v == value) return true;
+			}
+
+			return false;
+		}
+
+		public int numberOfValues() {
+			return values.Length;
 		}
 	}
 }
