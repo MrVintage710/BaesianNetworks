@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BaesianNetworks {
 	public class BaesNode {
 		private string[] values; 
 		List<BaesNode> children = new List<BaesNode>();
 		List<BaesNode> parents = new List<BaesNode>();
-		List<int[]> tableEntries = new List<int[]>();
+		List<TableEntry> tableEntries = new List<TableEntry>();
 
 		public BaesNode(params string[] values) {
 			this.values = values;
@@ -21,18 +22,24 @@ namespace BaesianNetworks {
 			tableEntries.Clear();
 		}
 
-		public void addEntry(params int[] values) {
-			int expectedSize = parents.Count + values.Length;
-			if(values.Length != expectedSize) return;
-			tableEntries.Add(values);
+		public void addEntry(int[] values, double[] probability) {
+			tableEntries.Add(new TableEntry(values, probability));
 		}
 
 		public BaesNode[] getChildren() {
 			return children.ToArray();
 		}
 		
-		public BaesNode[] getParent() {
+		public BaesNode[] getParents() {
 			return parents.ToArray();
+		}
+
+		public double[] getProbabilities(params int[] parentValues) {
+			foreach (var entry in tableEntries) {
+				if (entry.parentValuesEqual(parentValues)) return entry.ProbableValues;
+			}
+
+			return null;
 		}
 
 		public string getValue(int index) {
@@ -58,5 +65,23 @@ namespace BaesianNetworks {
 		public int numberOfValues() {
 			return values.Length;
 		}
+	}
+
+	public class TableEntry {
+		private int[] parentValues;
+		private double[] probableValues;
+
+		public TableEntry(int[] parentValues, double[] probableValues) {
+			this.parentValues = parentValues;
+			this.probableValues = probableValues;
+		}
+		
+		public bool parentValuesEqual(params int[] values) {
+			return Enumerable.SequenceEqual(values, parentValues);
+		}
+
+		public int[] ParentValues => parentValues;
+
+		public double[] ProbableValues => probableValues;
 	}
 }

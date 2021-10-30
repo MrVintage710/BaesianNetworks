@@ -256,7 +256,30 @@ namespace BaesianNetworks {
 		}
 
 		private void parseTableEntry(Queue<TokenInfo> tokens, BaesNode node, BaesNode[] parentNodes) {
-			//parse the entry;
+			var parentValues = new List<int>();
+			for (var i = 0; i < parentNodes.Length; i++) {
+				var id = tokens.Dequeue();
+				checkToken(id, Token.INDENTIFIER);
+				int valueIndex = parentNodes[i].getIndex(id.Value);
+				if (valueIndex < 0) throw new InvalidVariableException(id);
+				parentValues.Add(valueIndex);
+				
+				var next = tokens.Dequeue();
+				if(next.TokenType == Token.COMMA) continue;
+				else if (next.TokenType == Token.CLOSEPARENTHESES) {
+					if(i + 1 < parentNodes.Length) throw new NotEnoughVariablesException(next, i, parentNodes.Length);
+				} else {
+					throw new InvalidTokenException(next, Token.COMMA, Token.CLOSEPARENTHESES);
+				}
+			}
+
+			var probabilities = new List<int>();
+			for (var i = 0; i < node.numberOfValues(); i++) {
+				var probability = tokens.Dequeue();
+				checkToken(probability, Token.NUMBER);
+				
+				
+			}
 		}
 
 		private void parseVariable(Queue<TokenInfo> tokens) {
@@ -419,5 +442,10 @@ namespace BaesianNetworks {
 	class InvalidVariableException : Exception {
 		public InvalidVariableException(TokenInfo info) : 
 			base("(" + info.Line + ", " + info.Col + ") Variable Does not exist in the current context: '" + info.Value +"'"){ }
+	}
+
+	class NotEnoughVariablesException : Exception {
+		public NotEnoughVariablesException(TokenInfo info, int received, int expectedVariables) :
+			base("(" + info.Line + ", " + info.Col + ") Not enough values. Expected: " + expectedVariables + "   Found: " + received) { }
 	}
 }
