@@ -200,6 +200,7 @@ namespace BaesianNetworks {
 					var props = parseList(tokens);
 					//Table logic
 					amountOfVariables = props.Length;
+					nodes.Item1.addEntry(new int[]{}, props.ToArray());
 					break;
 				}
 				if (current.TokenType == Token.OPENPARENTHESES) {
@@ -235,6 +236,7 @@ namespace BaesianNetworks {
 				if(next.TokenType == Token.CLOSEPARENTHESES) break;
 			}
 			
+			baseNode.addParents(parents.ToArray());
 			return new Tuple<BaesNode, BaesNode[]>(baseNode, parents.ToArray());
 		}
 
@@ -273,13 +275,22 @@ namespace BaesianNetworks {
 				}
 			}
 
-			var probabilities = new List<int>();
+			var probabilities = new List<double>();
 			for (var i = 0; i < node.numberOfValues(); i++) {
 				var probability = tokens.Dequeue();
 				checkToken(probability, Token.NUMBER);
+				probabilities.Add(double.Parse(probability.Value));
 				
-				
+				var next = tokens.Dequeue();
+				if(next.TokenType == Token.COMMA) continue;
+				else if (next.TokenType == Token.ENDLINE) {
+					if(i + 1 < node.numberOfValues()) throw new NotEnoughVariablesException(next, i, parentNodes.Length);
+				} else {
+					throw new InvalidTokenException(next, Token.COMMA, Token.ENDLINE);
+				}
 			}
+			
+			node.addEntry(parentValues.ToArray(), probabilities.ToArray());
 		}
 
 		private void parseVariable(Queue<TokenInfo> tokens) {
@@ -305,7 +316,7 @@ namespace BaesianNetworks {
 				}
 			} while (current.TokenType != Token.CLOSEBRACKET);
 			
-			var node = new BaesNode(types.ToArray());
+			var node = new BaesNode(variableName.Value, types.ToArray());
 			nodeMap.Add(variableName.Value, node);
 		}
 

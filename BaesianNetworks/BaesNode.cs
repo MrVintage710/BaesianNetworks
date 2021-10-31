@@ -4,21 +4,29 @@ using System.Linq;
 
 namespace BaesianNetworks {
 	public class BaesNode {
+		private string name;
 		private string[] values; 
 		List<BaesNode> children = new List<BaesNode>();
 		List<BaesNode> parents = new List<BaesNode>();
 		List<TableEntry> tableEntries = new List<TableEntry>();
 
-		public BaesNode(params string[] values) {
+		public BaesNode(string name, params string[] values) {
 			this.values = values;
+			this.name = name;
 		}
 
 		public void addChildren(params BaesNode[] nodes) {
-			children.AddRange(nodes);
+			foreach (var node in nodes) {
+				if(!children.Contains(node)) children.AddRange(nodes);
+			}
 		}
 		
 		public void addParents(params BaesNode[] nodes) {
-			parents.AddRange(nodes);
+			foreach (var node in nodes) {
+				if(!parents.Contains(node)) parents.AddRange(nodes);
+				node.addChildren(this);
+			}
+			
 			tableEntries.Clear();
 		}
 
@@ -64,6 +72,11 @@ namespace BaesianNetworks {
 
 		public int numberOfValues() {
 			return values.Length;
+		}
+
+		public override bool Equals(object obj) {
+			if (obj is BaesNode) return ((BaesNode) obj).name == this.name;
+			return base.Equals(obj);
 		}
 	}
 

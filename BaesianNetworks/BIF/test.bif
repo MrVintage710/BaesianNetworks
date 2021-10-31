@@ -21,6 +21,6 @@ probability( C | A, B ) {
     (true, true) 0.50, 0.50;
     (true, false) 0.50, 0.50;
     (false, true) 0.50, 0.50;
-    (false, false) 0.50. 0.50;
+    (false, false) 0.50, 0.50;
 }
 
