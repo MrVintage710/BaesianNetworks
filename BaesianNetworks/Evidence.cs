@@ -1,11 +1,24 @@
-﻿using System;
-namespace BaesianNetworks
+﻿namespace BaesianNetworks
 {
     public class Evidence
     {
-        public Evidence()
+        string name;
+        string value;
+
+        public Evidence(string _variableName, string _variableValue)
         {
-            //TEST
+            name = _variableName;
+            value = _variableValue;
+        }
+
+        public string GetName()
+        {
+            return name;
+        }
+
+        public string GetValue()
+        {
+            return value;
         }
     }
 }
