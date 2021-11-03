@@ -1,0 +1,25 @@
+﻿<Properties StartupConfiguration="{88FB9FA6-43D8-4BE3-9A8F-D8AA8A62DACD}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="BaesianNetworks/Evidence.cs">
+    <Files>
+      <File FileName="BaesianNetworks/Evidence.cs" Line="8" Column="19" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="BaesianNetworks" expanded="True">
+            <Node name="BaesianNetworks" expanded="True">
+              <Node name="Evidence.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.BaesianNetworks PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
