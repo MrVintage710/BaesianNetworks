@@ -1,26 +1,40 @@
 //Comments should work
-network test {
-    property "This is a test network";
+network Alarm-Net {
+    property "This is the example network used in the book";
 }
 
-variable A { type discrete[2] { true, false }; }
+variable EARTHQUAKE { type discrete[2] { true, false }; }
 
-variable B { type discrete[2] { true, false }; }
+variable BURGLARY { type discrete[2] { true, false }; }
 
-variable C { type discrete[2] { true, false }; }
+variable ALARM { type discrete[2] { true, false }; }
 
-probability( A ) {
-	table 0.50, 0.50;
+variable JOHNCALLS { type discrete[2] { true, false }; }
+
+variable MARYCALLS { type discrete[2] { true, false }; }
+
+probability( BURGLARY ) {
+	table 0.001, 0.999;
 }
 
-probability( B ) {
-    table 0.50, 0.50;
+probability( EARTHQUAKE ) {
+    table 0.002, 0.998;
 }
 
-probability( C | A, B ) {
-    (true, true) 0.50, 0.50;
-    (true, false) 0.50, 0.50;
-    (false, true) 0.50, 0.50;
-    (false, false) 0.50, 0.50;
+probability( ALARM | EARTHQUAKE, BURGLARY ) {
+    (true, true) 0.95, 0.05;
+    (true, false) 0.94, 0.06;
+    (false, true) 0.29, 0.71;
+    (false, false) 0.001, 0.999;
+}
+
+probability( JOHNCALLS | ALARM ) {
+	(true) 0.90, 0.1;
+	(false) 0.05, 0.95;
+}
+
+probability( MARYCALLS | ALARM ) {
+	(true) 0.70, 0.30;
+	(false) 0.01, 0.99;
 }
 
