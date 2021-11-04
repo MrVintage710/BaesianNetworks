@@ -1,17 +1,15 @@
 ﻿<Properties StartupConfiguration="{88FB9FA6-43D8-4BE3-9A8F-D8AA8A62DACD}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="BaesianNetworks/Cell.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="BaesianNetworks/Matrix.cs">
     <Files>
-      <File FileName="BaesianNetworks/Evidence.cs" Line="11" Column="36" />
-      <File FileName="BaesianNetworks/Matrix.cs" Line="16" Column="22" />
-      <File FileName="BaesianNetworks/Cell.cs" Line="5" Column="19" />
+      <File FileName="BaesianNetworks/Evidence.cs" Line="33" Column="23" />
+      <File FileName="BaesianNetworks/Matrix.cs" Line="43" Column="48" />
+      <File FileName="BaesianNetworks/Program.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="BaesianNetworks" expanded="True">
-            <Node name="BaesianNetworks" expanded="True">
-              <Node name="Cell.cs" selected="True" />
-            </Node>
+            <Node name="BaesianNetworks" expanded="True" />
           </Node>
         </State>
       </Pad>

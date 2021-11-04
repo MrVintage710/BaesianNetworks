@@ -8,8 +8,9 @@ namespace BaesianNetworks
         // Variables to hold the dimensions of this matrix
         int m;
         int n;
+        int size;
 
-        LinkedList<Cell> matrix = new LinkedList<Cell>();
+        LinkedList<double> matrix = new LinkedList<double>();
 
         /// <summary>
         /// Creates an m (rows) by n (columns) matrix
@@ -23,6 +24,10 @@ namespace BaesianNetworks
 
             //Columns
             n = _n;
+
+            size = m * n;
+
+            Fill();
         }
 
         public int GetRows()
@@ -35,35 +40,48 @@ namespace BaesianNetworks
             return n;
         }
 
-        public LinkedList<Cell> GetMatrix()
+        public void SetCellValue(int _target, double _value)
         {
-            return matrix;
+            // TODO:
         }
 
-        public void SetCellValue(int _target, string _value)
+        public double GetCellValue(int _target)
         {
-            Cell head = matrix.First.Value;
-            for (int i = 1; i < _target; i++)
-            {
-                head = matrix.First.Next.Value;
-            }
-            head.SetValue(_value);
+            // TODO:
+            return -1;
         }
 
-        public string GetCellValue(int _target)
-        {
-            Cell head = matrix.First.Value;
-            for (int i = 1; i < _target; i++)
-            {
-                head = matrix.First.Next.Value;
-            }
-            return head.GetValue();
-        }
-
+        /// <summary>
+        /// Converts the matrix into string format and returns the string
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
-            string output = "TODO:";
+            string output = "";
+            LinkedListNode<double> currentCell = matrix.First;
+            for (int x = 0; x < m; x++)
+            {
+                for (int y = 0; y < n; y++)
+                {
+                    output += currentCell.Value + " ";
+                    currentCell = currentCell.Next;
+                }
+                output += "\n";
+            }
             return output;
+        }
+
+        /// <summary>
+        /// Fills the matrix with 0's creating the 0 matrix
+        /// </summary>
+        void Fill()
+        {
+            LinkedListNode<double> currentCellToAdd;
+            for (int i = 0; i < size; i++)
+            {
+                currentCellToAdd = new LinkedListNode<double>(0);
+                matrix.AddFirst(currentCellToAdd);
+            }
         }
     }
 }
