@@ -6,6 +6,8 @@ namespace BaesianNetworks.BIF {
 
 		private int depth;
 		private Dictionary<FactorEntry, double> entries = new Dictionary<FactorEntry, double>();
+	
+		// NOTE: factors are made up by more than one node
 		
 		public Factor(BaesNode node) {
 			this.depth = node.getParents().Length + 1;

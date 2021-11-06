@@ -10,6 +10,7 @@ namespace BaesianNetworks {
 	public class BaesNetwork {
 		
 		private Dictionary<string, BaesNode> nodeMap = new Dictionary<string, BaesNode>();
+		public Dictionary<string, BaesNode> GetNodeMap() => nodeMap;
 		private String networkName;
 		
 		private List<string> properties = new List<string>();

@@ -9,7 +9,7 @@ namespace BaesianNetworks {
 		public double solve(string statement, BaesNetwork network) {
 			var split = splitQuery(statement);
 			verifyValues(split.Item1, split.Item2, network);
-			return processQuery(split.Item1, split.Item2, network);
+			return processQuery(statement, split.Item1, split.Item2, network);
 		}
 
 		private Tuple<string[], Evidence[]> splitQuery(string query) {
@@ -51,11 +51,18 @@ namespace BaesianNetworks {
 			}
 		}
 
-		private double processQuery(string[] variables, Evidence[] evidence, BaesNetwork network) {
+		private double processQuery(string statement, string[] variables, Evidence[] evidence, BaesNetwork network) {
 			IEnumerable<string> names = variables.Concat(evidence.Select(evidence1 => evidence1.GetName()));
+			// Hidden Variables are all the variables not in the current query
 			var hiddenVariables = network.getNodesExcept(names.ToArray());
-			
-			Console.WriteLine(string.Join(", ", hiddenVariables));
+			// Create an equation; Contents include: 
+			// TODO: go variable by variable for the query
+			// TODO: have no evidence, little evidence, moderate evidence : 3 Modes to solve
+			// query each variable seperately
+			foreach (string query in variables) {
+				Equation equation = new Equation(statement, query, hiddenVariables, network, evidence);
+			}
+			//Console.WriteLine(string.Join(", ", hiddenVariables));
 			
 			return 0.0;
 		}
