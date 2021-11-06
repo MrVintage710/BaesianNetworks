@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using BaesianNetworks.BIF;
 
@@ -14,28 +15,41 @@ namespace BaesianNetworks {
             equation = new List<Component>();
             queryStatement = statement;
             queryNode = network.getNode(query);
+            List<Summation> summations = new List<Summation>();
+            List<SubQuery> subQueries = new List<SubQuery>();
             
             // write append HiddenVars and SubQueries to the equation
             // going to have a summation for every hidden variable
-            foreach (BaesNode bn in hiddenVars) {
+            foreach (BaesNode hbn in hiddenVars) {
                 //summations.Add(new Summation(bn));
-                equation.Add(new Summation(bn));
+                summations.Add(new Summation(hbn));
             }
-            // DEBUG
             // going to have a subQuery for every node above the quiried node
             foreach (BaesNode bn in network.GetNodeMap().Values) {
                 //subQueries.Add(new SubQuery(bn));
-                // consider summations first
-                
                 // add to equation in bn does not match summation
-                equation.Add(new SubQuery(bn));
+                subQueries.Add(new SubQuery(bn));
             }
             // Order the Equation. Traveling through the equation right to left, compare each subquery to the closest
             // summation; if there exists a variable in the subquery which matches the summation, add that variable
             // to the summation (removing the subquery from the equation and adding it to the subquery).
             // If the subquery does not match any of the summations, then move it to the beginning of the equation
-            //equation.Reverse();
-        
+            summations.Reverse();
+            foreach (SubQuery sq in subQueries) {
+                foreach (Summation summation in summations) {
+                    if (sq.GetSignature.Contains(summation.GetSumOut) && !sq.marked) {
+                        summation.AddSubQuery(sq);
+                        sq.marked = true;
+                    }
+                }
+            }
+            
+
+            foreach (Summation summation in summations) equation.Add(summation);
+            foreach (SubQuery sq in subQueries) { 
+                if (!sq.marked) equation.Add(sq);
+            }
+            equation.Reverse();
             // DEBUG
             Console.WriteLine(this);
         }
@@ -58,7 +72,6 @@ namespace BaesianNetworks {
     }
 
     interface Component {
-        String ComponentType();
         //Factor Solve();
     }
 
@@ -67,10 +80,6 @@ namespace BaesianNetworks {
         public string GetSumOut => sumOut;
         private List<SubQuery> process;
         public List<SubQuery> GetProcess => process;
-
-        public String ComponentType() {
-            return "summation";
-        }
 
     public Summation(BaesNode bn) {
             sumOut = bn.getVariableName();
@@ -100,14 +109,18 @@ namespace BaesianNetworks {
         private BaesNode variable;
         public BaesNode GetVariable => variable;
         private BaesNode[] dependencies;
-        public BaesNode[] GetDependencies => dependencies;
+        private string signature = "";
+        public string GetSignature => signature;
+        public bool marked = false;
 
-        public String ComponentType() {
-            return "subquery";
-        }
         public SubQuery(BaesNode node) {
             variable = node;
             dependencies = node.getParents();
+            // define signature
+            signature += variable.getVariableName() + " ";
+            foreach (BaesNode bn in dependencies) { 
+                signature += bn.getVariableName() + " ";
+            }
         }
         
         // public Factor Solve() {
@@ -123,7 +136,7 @@ namespace BaesianNetworks {
                 o += ",";
             }
             if (o.EndsWith(",")) o = o.Remove(o.Length-1);
-            o += ")";
+            o += ") ";
             return o;
         }
     }
