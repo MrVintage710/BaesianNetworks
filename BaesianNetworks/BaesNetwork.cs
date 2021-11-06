@@ -17,9 +17,31 @@ namespace BaesianNetworks {
 		public BaesNetwork(string filename) {
 			string file = File.ReadAllText("./BIF/" + filename);
 			var tokens = tokenize(file);
-			Console.WriteLine(string.Join(",\n", tokens));
 			parse(tokens);
-			Console.WriteLine(networkName);
+		}
+
+		public IEnumerable<BaesNode> getNodesExcept(params string[] names) {
+			return nodeMap.Values.Where((node) => {
+				foreach (var n in names) {
+					if (n.ToLower() == node.getVariableName().ToLower()) return false;
+				}
+				
+				return true;
+			});
+		}
+
+		public BaesNode getNode(string variableName) {
+			var key = variableName.ToLower();
+			if (!nodeMap.ContainsKey(key)) return null;
+			return nodeMap[key];
+		}
+
+		public bool hasVariable(string variableName) {
+			return nodeMap.ContainsKey(variableName.ToLower());
+		}
+
+		public string getName() {
+			return this.networkName;
 		}
 		
 		private Queue<TokenInfo> tokenize(string file) {
@@ -216,7 +238,7 @@ namespace BaesianNetworks {
 			var variable = tokens.Dequeue();
 			checkToken(variable, Token.INDENTIFIER);
 			checkNode(variable);
-			BaesNode baseNode = nodeMap[variable.Value];
+			BaesNode baseNode = nodeMap[variable.Value.ToLower()];
 			
 			var bar = tokens.Dequeue();
 			if(bar.TokenType == Token.CLOSEPARENTHESES) 
@@ -230,7 +252,7 @@ namespace BaesianNetworks {
 				checkToken(parent, Token.INDENTIFIER);
 				checkNode(parent);
 
-				parents.Add(nodeMap[parent.Value]);
+				parents.Add(nodeMap[parent.Value.ToLower()]);
 				
 				var next = tokens.Dequeue();
 				if(next.TokenType == Token.CLOSEPARENTHESES) break;
@@ -317,7 +339,7 @@ namespace BaesianNetworks {
 			} while (current.TokenType != Token.CLOSEBRACKET);
 			
 			var node = new BaesNode(variableName.Value, types.ToArray());
-			nodeMap.Add(variableName.Value, node);
+			nodeMap.Add(variableName.Value.ToLower(), node);
 		}
 
 		private void parseNetwork(Queue<TokenInfo> tokens) {
@@ -388,7 +410,7 @@ namespace BaesianNetworks {
 		}
 
 		private void checkNode(TokenInfo info) {
-			if(!nodeMap.ContainsKey(info.Value))
+			if(!nodeMap.ContainsKey(info.Value.ToLower()))
 				throw new InvalidVariableException(info);
 		}
 	}

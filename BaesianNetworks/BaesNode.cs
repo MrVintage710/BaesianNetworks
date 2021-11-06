@@ -43,6 +43,7 @@ namespace BaesianNetworks {
 		}
 
 		public double[] getProbabilities(params int[] parentValues) {
+			if (parentValues.Length != getDepth()) return new double[]{};
 			foreach (var entry in tableEntries) {
 				if (entry.parentValuesEqual(parentValues)) return entry.ProbableValues;
 			}
@@ -56,7 +57,7 @@ namespace BaesianNetworks {
 
 		public int getIndex(string value) {
 			for (var i = 0; i < values.Length; i++) {
-				if (values[i] == value) return i;
+				if (values[i].ToLower() == value.ToLower()) return i;
 			}
 
 			return -1;
@@ -64,7 +65,7 @@ namespace BaesianNetworks {
 		
 		public bool containsValue(string value) {
 			foreach (var v in values) {
-				if (v == value) return true;
+				if (v.ToLower() == value.ToLower()) return true;
 			}
 
 			return false;
@@ -74,9 +75,21 @@ namespace BaesianNetworks {
 			return values.Length;
 		}
 
+		public int getDepth() {
+			return parents.Count;
+		}
+
+		public string getVariableName() {
+			return name;
+		}
+
 		public override bool Equals(object obj) {
 			if (obj is BaesNode) return ((BaesNode) obj).name == this.name;
 			return base.Equals(obj);
+		}
+
+		public override string ToString() {
+			return this.name;
 		}
 	}
 
