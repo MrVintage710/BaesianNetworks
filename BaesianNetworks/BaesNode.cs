@@ -20,6 +20,12 @@ namespace BaesianNetworks {
 				if(!children.Contains(node)) children.AddRange(nodes);
 			}
 		}
+
+		public string[] evidenceNeeded() {
+			return parents.Select((parent, index) => {
+				return parent.name;
+			}).ToArray();
+		}
 		
 		public void addParents(params BaesNode[] nodes) {
 			foreach (var node in nodes) {

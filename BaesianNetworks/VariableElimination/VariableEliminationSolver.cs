@@ -63,23 +63,23 @@ namespace BaesianNetworks {
 			foreach (string query in variables) {
 				Equation equation = new Equation(statement, query, hiddenVariables, network);
 				Queue<Component> queue = equation.AsQueue();
-				
+				var o = ProcessEquation(queue, network, evidence);
 				//pass in evidence out here
-				
+
 			}
 			//Console.WriteLine(string.Join(", ", hiddenVariables));
 			
 			return 0.0;
 		}
 
-		private Double[] ProcessEquation(Queue<Component> queue) {
+		private double[] ProcessEquation(Queue<Component> queue, BaesNetwork net, Evidence[] evidence) {
 			Component toSolve = queue.Dequeue();
 			if (queue.Count > 0) {
-				double[] tempSolution = toSolve.Solve();
+				double[] tempSolution = toSolve.Solve(net, evidence);
 				queue.Peek().AddToTop(tempSolution);
-				return ProcessEquation(queue);
+				return ProcessEquation(queue, net, evidence);
 			}
-			return toSolve.Solve();
+			return toSolve.Solve(net, evidence);
 		}
 	}
 }

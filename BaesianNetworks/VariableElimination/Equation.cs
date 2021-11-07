@@ -78,7 +78,7 @@ namespace BaesianNetworks {
     }
 
     public interface Component {
-        double[] Solve(params Evidence[] evidences);
+        double[] Solve(BaesNetwork met, params Evidence[] evidences);
         void AddToTop(double[] tempSolution);
     }
 
@@ -104,8 +104,17 @@ namespace BaesianNetworks {
             solved = tempSolution;
         }
 
-        public double[] Solve(params Evidence[] evidences) {
-            
+        public double[] Solve(BaesNetwork net, params Evidence[] evidences) {
+            var results = new Queue<double[]>();
+            foreach (var value in net.getNode(sumOut).GetValues()) {
+                var inner_result = new Queue<double[]>();
+                foreach (var p in process) {
+                    var evidence = new Evidence(sumOut, value);
+                    inner_result.Enqueue(p.Solve(net, evidences.Concat(new[] {evidence}).ToArray()));
+                }
+                results.Enqueue(factorProduct(inner_result));
+            }
+            return sumFacotrs(results);
         } 
         
         public override string ToString() {
@@ -115,6 +124,63 @@ namespace BaesianNetworks {
                 o += sq.ToString();
             }
             return o;
+        }
+
+        private double[] factorProduct(Queue<double[]> factors, double[] current = null) {
+            if (factors.Count == 0) return current;
+            
+            var next = factors.Dequeue();
+            if (current == null) {
+                return factorProduct(factors, current = next);
+            }
+
+            if (current.Length == 1 && next.Length == 1) {
+                return factorProduct(factors, new[] {current[0] * next[0]});
+            }
+
+            if (current.Length == 1 && next.Length > 1) {
+                var values = new List<double>();
+                for (var i = 0; i < next.Length; i++) {
+                    values.Add(next[i] * current[0]);
+                }
+                return factorProduct(factors, values.ToArray());
+            }
+
+            if (current.Length > 1 && next.Length == 1) {
+                var values = new List<double>();
+                for (var i = 0; i < current.Length; i++) {
+                    values.Add(current[i] * next[0]);
+                }
+                return factorProduct(factors, values.ToArray());
+            }
+
+            if (current.Length > 1 && next.Length > 1) {
+                if (current.Length != next.Length) throw new Exception("Product cannot be done.");
+                var values = new List<double>();
+                for (var i = 0; i < current.Length; i++) {
+                    values.Add(current[i] * next[i]);
+                }
+                return factorProduct(factors, values.ToArray());
+            }
+
+            return new double[] { };
+        }
+
+        private double[] sumFacotrs(Queue<double[]> factors, double[] sum = null) {
+            if (factors.Count == 0) return sum;
+            var next = factors.Dequeue();
+            if (sum == null) return sumFacotrs(factors, sum = next);
+
+            if (sum.Length == next.Length) {
+                var values = new List<double>();
+                for (var i = 0; i < sum.Length; i++) {
+                    values.Add(sum[i] + next[i]);
+                }
+
+                return sumFacotrs(factors, values.ToArray());
+            }
+
+            throw new Exception("Cannot add factors.");
         }
     }
 
@@ -147,8 +213,16 @@ namespace BaesianNetworks {
             solved = tempSolution;
         }
 
-        public double[] Solve(params Evidence[] evidences) {
-            
+        public double[] Solve(BaesNetwork net, params Evidence[] evidences) {
+            List<int> e = new List<int>();
+            foreach (var evidenceNeeded in variable.evidenceNeeded()) {
+                foreach (var evidence in evidences) {
+                    if (evidence.GetName().ToLower() == evidenceNeeded.ToLower()) {
+                        e.Add(net.getNode(evidenceNeeded).getIndex(evidence.GetValue()));
+                    }
+                }
+            }
+            return variable.getProbabilities(e.ToArray());
         }
 
         public override string ToString() {
