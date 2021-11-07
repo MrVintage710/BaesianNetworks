@@ -2,22 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
-using BaesianNetworks.BIF;
 
 namespace BaesianNetworks {
     public class Equation {
         private List<Component> equation;
         private string queryStatement;
         private BaesNode queryNode;
-        
 
-        public Equation(string statement, string query, IEnumerable<BaesNode> hiddenVars, BaesNetwork network, Evidence[] evidences) {
+        public Equation(string statement, string query, IEnumerable<BaesNode> hiddenVars, BaesNetwork network) {
             equation = new List<Component>();
             queryStatement = statement;
             queryNode = network.getNode(query);
-            List<Summation> summations = new List<Summation>();
             List<SubQuery> subQueries = new List<SubQuery>();
-            
+            List<Summation> summations = new List<Summation>();
             // write append HiddenVars and SubQueries to the equation
             // going to have a summation for every hidden variable
             foreach (BaesNode hbn in hiddenVars) {
@@ -30,6 +27,22 @@ namespace BaesianNetworks {
                 // add to equation in bn does not match summation
                 subQueries.Add(new SubQuery(bn));
             }
+            OrderEquation(summations, subQueries);
+            EquationToFactors();
+            // DEBUG
+            Console.WriteLine(this);
+        }
+
+        public override string ToString() {
+            string o = "";
+            o += "(" + queryStatement + ") = ";
+            foreach (Component c in equation) {
+                o += c.ToString();
+            }
+            return o;
+        }
+
+        private void OrderEquation(List<Summation> summations, List<SubQuery> subQueries) {
             // Order the Equation. Traveling through the equation right to left, compare each subquery to the closest
             // summation; if there exists a variable in the subquery which matches the summation, add that variable
             // to the summation (removing the subquery from the equation and adding it to the subquery).
@@ -43,45 +56,41 @@ namespace BaesianNetworks {
                     }
                 }
             }
-            
 
             foreach (Summation summation in summations) equation.Add(summation);
-            foreach (SubQuery sq in subQueries) { 
+            foreach (SubQuery sq in subQueries) {
                 if (!sq.marked) equation.Add(sq);
             }
+
             equation.Reverse();
-            // DEBUG
-            Console.WriteLine(this);
         }
 
-        /// <summary>
-        /// Orders the equation based on dependencies and depth
-        /// </summary>
-        private void OrderEquation() {
-             
+        private void EquationToFactors() {
         }
 
-        public override string ToString() {
-            string o = "";
-            o += "(" + queryStatement + ") = ";
-            foreach (Component c in equation) {
-                o += c.ToString();
+        public Queue<Component> AsQueue() {
+            Queue<Component> equation_queue = new Queue<Component>();
+            for (int i = equation.Count-1; i > -1; i--) {
+                equation_queue.Enqueue(equation[i]);
             }
-            return o;
+            return equation_queue;
         }
     }
 
-    interface Component {
-        //Factor Solve();
+    public interface Component {
+        double[] Solve(params Evidence[] evidences);
+        void AddToTop(double[] tempSolution);
     }
 
+    
     class Summation : Component {
         private string sumOut;
         public string GetSumOut => sumOut;
         private List<SubQuery> process;
+        private double[] solved;
         public List<SubQuery> GetProcess => process;
 
-    public Summation(BaesNode bn) {
+        public Summation(BaesNode bn) {
             sumOut = bn.getVariableName();
             process = new List<SubQuery>();
         }
@@ -91,10 +100,14 @@ namespace BaesianNetworks {
             process.Add(sq);
         }
 
-        // public Factor Solve(Factor f) {
-        //     return new Factor();
-        // }
+        public void AddToTop(double[] tempSolution) {
+            solved = tempSolution;
+        }
 
+        public double[] Solve(params Evidence[] evidences) {
+            
+        } 
+        
         public override string ToString() {
             string o = "";
             o += '\u2211' + "\"" + sumOut + "\"";
@@ -112,20 +125,31 @@ namespace BaesianNetworks {
         private string signature = "";
         public string GetSignature => signature;
         public bool marked = false;
-
+        
+        // Factor relevent info below
+        private List<BaesNode> factors;
+        private double[] solved;
+        
         public SubQuery(BaesNode node) {
+            factors = new List<BaesNode>();
             variable = node;
             dependencies = node.getParents();
             // define signature
             signature += variable.getVariableName() + " ";
             foreach (BaesNode bn in dependencies) { 
                 signature += bn.getVariableName() + " ";
+                factors.Add(bn);
             }
+            factors.Add(variable);
         }
-        
-        // public Factor Solve() {
-        //     return new Factor();
-        // }
+
+        public void AddToTop(double[] tempSolution) {
+            solved = tempSolution;
+        }
+
+        public double[] Solve(params Evidence[] evidences) {
+            
+        }
 
         public override string ToString() {
             string o = "";

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -60,11 +61,25 @@ namespace BaesianNetworks {
 			// TODO: have no evidence, little evidence, moderate evidence : 3 Modes to solve
 			// query each variable seperately
 			foreach (string query in variables) {
-				Equation equation = new Equation(statement, query, hiddenVariables, network, evidence);
+				Equation equation = new Equation(statement, query, hiddenVariables, network);
+				Queue<Component> queue = equation.AsQueue();
+				
+				//pass in evidence out here
+				
 			}
 			//Console.WriteLine(string.Join(", ", hiddenVariables));
 			
 			return 0.0;
+		}
+
+		private Double[] ProcessEquation(Queue<Component> queue) {
+			Component toSolve = queue.Dequeue();
+			if (queue.Count > 0) {
+				double[] tempSolution = toSolve.Solve();
+				queue.Peek().AddToTop(tempSolution);
+				return ProcessEquation(queue);
+			}
+			return toSolve.Solve();
 		}
 	}
 }

@@ -71,6 +71,10 @@ namespace BaesianNetworks {
 			return false;
 		}
 
+		public string[] GetValues() {
+			return values;
+		}
+
 		public int numberOfValues() {
 			return values.Length;
 		}
