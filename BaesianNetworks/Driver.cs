@@ -30,7 +30,8 @@ namespace BaesianNetworks {
             // VariableElimination VEsolver = new VEsolver();
             // Gibbs GibsSolver = new GibsSolver();
             
-            // Alarm Network
+            // Alarm Network [inputs passed]
+            // TODO allow query variables to be queried without any evidence
             BaesNetwork alarm = new BaesNetwork("alarm.bif");
             // No Evidence -----------------------
             // VEsolver.solve("HYPOVOLEMIA", alarm); 
@@ -56,7 +57,8 @@ namespace BaesianNetworks {
             // VEsolver.solve("ERRLOWOUTPUT" + MO_alarm, alarm);
             // GibsSolver.solve("ERRLOWOUTPUT" + MO_alarm, alarm)
             
-            // Child Network
+            // Child Network [test inputs still]
+            // TODO: fix the parser to account for tests in " " 
             BaesNetwork child = new BaesNetwork("child.bif");
             // No Evidence
             // VEsolver.solve("Disease", child); 
@@ -70,7 +72,7 @@ namespace BaesianNetworks {
             // VEsolver.solve("Disease" + MO_child, child);
             // GibsSolver.solve("Disease" + MO_child, child);
             
-            // Hailfinder Network
+            // Hailfinder Network [inputs passed]
             BaesNetwork hailfinder = new BaesNetwork("hailfinder.bif");
             // No Evidence
             // VEsolver.solve("SatContMoist", hailfinder); 
@@ -78,19 +80,19 @@ namespace BaesianNetworks {
             // VEsolver.solve("LLIW", hailfinder); 
             // GibsSolver.solve("LLIW", hailfinder);
             // Little Evidence -------------------------------
-            string LE_hailfinder = "|RSFcst=XNIL,N32StarFcst=XNIL,MountainFcst=XNIL,AreaMoDryAir=VeryWet";
+            string LE_hailfinder = "|R5Fcst=XNIL,N34StarFcst=XNIL,MountainFcst=XNIL,AreaMoDryAir=VeryWet";
             // VEsolver.solve("SatContMoist" + LE_hailfinder, hailfinder); 
             // GibsSolver.solve("SatContMoist" + LE_hailfinder, hailfinder);
             // VEsolver.solve("LLIW" + LE_hailfinder, hailfinder); 
             // GibsSolver.solve("LLIW" + LE_hailfinder, hailfinder); 
             // Little Evidence -------------------------------
-            string MO_hailfinder = ",CombVerMo=Down; AreaMeso_ALS=Down; CurPropConv=Strong"; 
+            string MO_hailfinder = ",CombVerMo=Down, AreaMeso_ALS=Down, CurPropConv=Strong"; 
             // VEsolver.solve("SatContMoist" + MO_hailfinder, hailfinder); 
             // GibsSolver.solve("SatContMoist" + MO_hailfinder, hailfinder);
             // VEsolver.solve("LLIW" + MO_hailfinder, hailfinder); 
             // GibsSolver.solve("LLIW" + MO_hailfinder, hailfinder);  
            
-            // Insurance Network
+            // Insurance Network [inputs passed]
             BaesNetwork insurance = new BaesNetwork("insurance.bif");
             // No Evidence
             // VEsolver.solve("MedCost", insurance); 
@@ -108,7 +110,7 @@ namespace BaesianNetworks {
             // VEsolver.solve("PropCost" + LE_insurance, insurance); 
             // GibsSolver.solve("PropCost" + LE_insurance, insurance); 
             // Moderate Evidence --------------------------
-            string MO_insurance = LE_insurance + ",MakeModel=Luxury,CarValue=FiftyThousand,DrivHistory=Zero";
+            string MO_insurance = LE_insurance + ",MakeModel=Luxury,CarValue=FiftyThou,DrivHist=Zero";
             // VEsolver.solve("MedCost" MO_insurance, insurance); 
             // GibsSolver.solve("MedCost" MO_insurance, insurance);
             // VEsolver.solve("ILiCost" MO_insurance, insurance); 
@@ -116,7 +118,7 @@ namespace BaesianNetworks {
             // VEsolver.solve("PropCost" MO_insurance, insurance); 
             // GibsSolver.solve("PropCost" MO_insurance, insurance);  
 
-            // win95pts Network
+            // win95pts Network [inputes passed]
             BaesNetwork win95pts = new BaesNetwork("win95pts.bif");
             string[] report_win = new[] {"Problem1", "Problem2", "Problem3", "Problem4", "Problem5", "Problem6"};
             string[] evidence_win = new[] {
