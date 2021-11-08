@@ -36,5 +36,10 @@
         {
             return value;
         }
+
+        public void SetValue(string _value)
+        {
+            value = _value;
+        }
     }
 }
