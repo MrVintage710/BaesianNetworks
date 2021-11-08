@@ -2,8 +2,9 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="BaesianNetworks/GibbsSampling.cs">
     <Files>
       <File FileName="BaesianNetworks/Program.cs" Line="15" Column="71" />
-      <File FileName="BaesianNetworks/GibbsSampling.cs" Line="126" Column="27" />
-      <File FileName="BaesianNetworks/BIF/test.bif" Line="1" Column="1" />
+      <File FileName="BaesianNetworks/GibbsSampling.cs" Line="32" Column="50" />
+      <File FileName="BaesianNetworks/BIF/test.bif" Line="21" Column="24" />
+      <File FileName="BaesianNetworks/Evidence.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">

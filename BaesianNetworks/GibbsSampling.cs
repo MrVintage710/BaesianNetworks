@@ -9,10 +9,19 @@ namespace BaesianNetworks
 	{
 		Random random = new Random();
 
+		List<string> query = new List<string>();
+
+		int falseCount = 0;
+		int trueCount = 0;
+
 		public double solve(string _query, BaesNetwork _network)
 		{
 			// The query split into given evidence and variables
 			Tuple<string[], Evidence[]> data = SplitQuery(_query);
+
+			// Keeps track of original query
+			for (int i = 0; i < data.Item1.Length; i++)
+				query.Add(data.Item1[i]);
 
 			// The initial evidence becomes the fixed evidence
 			List<Evidence> fixedEvidence = new List<Evidence>();
@@ -21,7 +30,7 @@ namespace BaesianNetworks
 
 
 
-			// Finding the Markov Blanket
+			// FINDING MARKOV BLANKET
 
 			// The initial nodes passed in by the query
 			BaesNode[] initialNodes = new BaesNode[data.Item1.Length];
@@ -70,6 +79,10 @@ namespace BaesianNetworks
 				variables.Add(tempEvidence);
 			}
 
+
+
+			// INITIAL STATE
+
 			// Creates the initial starting state
 			List<string> initialState = new List<string>();
 			// Randomly initializes the starting state
@@ -91,30 +104,29 @@ namespace BaesianNetworks
 			for (int i = 0; i < fixedEvidence.Count; i++)
 				initialState.Add(fixedEvidence[i].GetValue());
 
-			// DEBUG:
-			/*for (int i = 0; i < initialState.Count; i++)
-            {
-				Console.WriteLine(initialState[i]);
-			}*/
 
-			// Burn the first 'i' samples
-			/*for (int i = 0; i < 10; i++)
-				Sample(variables, fixedEvidence);*/
+
+			// SAMPLING
 
 			for (int i = 0; i < initialState.Count; i++)
 			{
 				Console.WriteLine(initialState[i]);
 			}
 			Console.WriteLine("\n\n");
-			List<string> burnState = Sample(10, variables, fixedEvidence, initialState);
+
+			// Burn the first 'i' samples
+			List<string> burnState = Sample(100, variables, fixedEvidence, initialState);
 			for (int i = 0; i < burnState.Count; i++)
-			{
 				Console.WriteLine(burnState[i]);
-			}
+
+			Console.WriteLine("\n\n");
 
 			// Start collecting more relevant samples
-			/*for (int i = 0; i < 10; i++)
-				Sample(variables, fixedEvidence);*/
+			List<string> finalState = Sample(100, variables, fixedEvidence, initialState);
+			for (int i = 0; i < finalState.Count; i++)
+				Console.WriteLine(finalState[i]);
+
+			Console.WriteLine("\n" + trueCount + " <- true, false -> : " + falseCount);
 
 			return 1;
 		}
@@ -141,9 +153,20 @@ namespace BaesianNetworks
 						break;
 				}
 
+				for (int i = 0; i < _variables.Count; i++)
+                {
+					if (query.Contains(_variables[i].GetName()))
+                    {
+						//Console.WriteLine("\nval: " + _variables[i].GetValue());
+						if (_state[i].Equals("TRUE"))
+							trueCount++;
+						else
+							falseCount++;
+					}
+                }
+
 				Sample(_life - 1, _variables, _fixedEvidence, _state);
 			}
-
 			return _state;
         }
 
