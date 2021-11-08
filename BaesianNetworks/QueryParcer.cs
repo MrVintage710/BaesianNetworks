@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BaesianNetworks {
 	public class QueryParser {
@@ -13,16 +14,14 @@ namespace BaesianNetworks {
 		}
 
 		public static Evidence[] parseEvidence(string evidence) {
-			var evidenceStrings = evidence.Split(',');
+			var pattern = @"[a-zA-Z1-9]+|""[^""]+""";
+			var match = Regex.Matches(evidence, pattern).Cast<Match>().Select(m => new string(m.Value.Where(c => c != '"').ToArray())).ToArray();
 
+			if(match.Length % 2 != 0) throw new InvalidDataException("Every Variable must have a value.");
+			
 			var evidences = new List<Evidence>();
-			foreach (var e in evidenceStrings) {
-				var s = e.Split('=');
-				
-				if(s.Length < 2) 
-					throw new InvalidDataException("'" + e + "' is not the right format for evidence.");
-				
-				evidences.Add(new Evidence(s[0], s[1]));
+			for (var i = 0; i < match.Length; i += 2) {
+				evidences.Add(new Evidence(match[i], match[i+1]));
 			}
 
 			return evidences.ToArray();
