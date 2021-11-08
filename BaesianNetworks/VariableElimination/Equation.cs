@@ -245,24 +245,23 @@ namespace BaesianNetworks {
         public void addComponent(Component component) { }
 
         public double[] Solve(BaesNetwork net, params Evidence[] evidences) {
-            List<int> e = new List<int>();
-            foreach (var evidenceNeeded in variable.evidenceNeeded()) {
-                bool foundMatch = false;
+            List<int> knownValues = new List<int>(factors.Count);
+
+            var index = 0;
+            foreach (var factor in factors) {
+                bool valueFound = false;
                 foreach (var evidence in evidences) {
-                    if (evidence.GetName().ToLower() == evidenceNeeded.ToLower()) {
-                        e.Add(net.getNode(evidenceNeeded).getIndex(evidence.GetValue()));
-                        foundMatch = true;
-                        break;
+                    if (factor.getVariableName().ToLower() == evidence.GetName().ToLower()) {
+                        knownValues[index] = factor.getIndex(evidence.GetValue());
+                        valueFound = true;
                     }
                 }
 
-                if (!foundMatch) {
-                    
-                }
+                if (!valueFound) knownValues[index] = -1;
+                index++;
             }
             
-            
-            return variable.getProbabilities(e.ToArray());
+            return new double[]{};
         }
 
         public override string ToString() {
