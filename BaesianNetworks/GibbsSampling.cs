@@ -128,7 +128,8 @@ namespace BaesianNetworks
 
 			Console.WriteLine("\n" + trueCount + " <- true, false -> : " + falseCount);
 
-			return 1;
+			Console.WriteLine("\n normalize: " + Normalize(trueCount, falseCount));
+			return Normalize(trueCount, falseCount);
 		}
 
 		List<string> Sample(int _life, List<Evidence> _variables, List<Evidence> _fixedEvidence, List<string> _state)
@@ -168,6 +169,15 @@ namespace BaesianNetworks
 				Sample(_life - 1, _variables, _fixedEvidence, _state);
 			}
 			return _state;
+        }
+
+		double Normalize(int _first, int _second)
+        {
+			int total = _first + _second;
+			double f = (double)_first / (double)total;
+			double s = (double)_second / (double)total;
+
+			return f;
         }
 
 		Tuple<string[], Evidence[]> SplitQuery(string query)
