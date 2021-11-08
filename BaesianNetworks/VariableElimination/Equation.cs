@@ -198,7 +198,7 @@ namespace BaesianNetworks {
         }
 
         private double[] sumFacotrs(Queue<double[]> factors, double[] sum = null) {
-            if (factors.Count == 0) return sum;
+            if (factors.Count == 0) return sum != null ? sum : new double[]{};
             var next = factors.Dequeue();
             if (sum == null) return sumFacotrs(factors, sum = next);
 

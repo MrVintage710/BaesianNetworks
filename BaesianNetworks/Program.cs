@@ -5,7 +5,7 @@ namespace BaesianNetworks {
 		public static void Main(string[] args) {
 			var solver = new VariableEliminationSolver();
 			var net = new BaesNetwork("test.bif");
-			solver.solve("ALARM|BURGLARY=TRUE", net);
+			solver.solve("BURGLARY|JOHNCALLS=TRUE,MARYCALLS=TRUE", net);
 		}
 	}
 }
