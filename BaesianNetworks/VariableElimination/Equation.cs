@@ -8,6 +8,8 @@ namespace BaesianNetworks {
         private List<Component> equation;
         private string queryStatement;
         private BaesNode queryNode;
+        private BaesNetwork Network;
+        public BaesNetwork GetNetwork => Network;
 
         public Equation(string statement, string query, IEnumerable<BaesNode> hiddenVars, BaesNetwork network) {
             equation = new List<Component>();
@@ -15,6 +17,7 @@ namespace BaesianNetworks {
             queryNode = network.getNode(query);
             List<SubQuery> subQueries = new List<SubQuery>();
             List<Summation> summations = new List<Summation>();
+            Network = network;
             // write append HiddenVars and SubQueries to the equation
             // going to have a summation for every hidden variable
             foreach (BaesNode hbn in hiddenVars) {
@@ -25,7 +28,7 @@ namespace BaesianNetworks {
             foreach (BaesNode bn in network.GetNodeMap().Values) {
                 //subQueries.Add(new SubQuery(bn));
                 // add to equation in bn does not match summation
-                subQueries.Add(new SubQuery(bn));
+                subQueries.Add(new SubQuery(bn,network));
             }
             OrderEquation(summations, subQueries);
             EquationToFactors();
@@ -128,19 +131,15 @@ namespace BaesianNetworks {
         private string signature = "";
         public string GetSignature => signature;
         public bool marked = false;
+
+        private FactorTree factorTree;
         
         // Factor relevent info below
         private List<BaesNode> factors;
         private double[] solved;
         
-        // Table made from factors
-        private List<string> factorComboTable;
-        private List<double> factorProbTable;
-        
-        public SubQuery(BaesNode node) {
+        public SubQuery(BaesNode node, BaesNetwork net) {
             factors = new List<BaesNode>();
-            factorComboTable = new List<string>();
-            factorProbTable = new List<double>();
             variable = node;
             dependencies = node.getParents();
             // define signature
@@ -150,24 +149,8 @@ namespace BaesianNetworks {
                 factors.Add(bn);
             }
             factors.Add(variable);
-            
-            // Create factor table
-            double sections = 2;
-            double total = Math.Pow(2,factors.Count());
-            
-            // TODO check if this works , want order: greatest -> least 
-            //factors.Sort((x,y)=>x.numberOfValues().CompareTo(y.numberOfValues()));
-            factors.Sort((x,y)=>y.numberOfValues().CompareTo(x.numberOfValues()));
-            
-            int driver = factors[0].GetValues().Length;
-            int element_count = 0;
-            foreach (BaesNode factor in factors) {
-                 
-                for (int s = 0; s < sections; s++) {
-                            
-                }
-                sections = Math.Pow(sections, 2);
-            } 
+            factorTree = new FactorTree(factors, net);
+
         }
 
         public void AddToTop(double[] tempSolution) {

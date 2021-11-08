@@ -46,6 +46,7 @@
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Evidence.cs" />
         <Compile Include="VariableElimination\Equation.cs" />
+        <Compile Include="VariableElimination\FactorTree.cs" />
         <Compile Include="VariableElimination\Matrix.cs" />
         <Compile Include="VariableElimination\VariableEliminationSolver.cs" />
     </ItemGroup>
