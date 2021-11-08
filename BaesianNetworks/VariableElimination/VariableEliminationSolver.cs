@@ -62,8 +62,9 @@ namespace BaesianNetworks {
 			// query each variable seperately
 			foreach (string query in variables) {
 				Equation equation = new Equation(statement, query, hiddenVariables, network);
-				Queue<Component> queue = equation.AsQueue();
-				var o = ProcessEquation(queue, network, evidence);
+				Stack<Component> stack = equation.root();
+				//Queue<Component> queue = equation.AsQueue();
+				var o = ProcessEquation(stack, network, evidence);
 				//pass in evidence out here
 
 			}
@@ -72,8 +73,8 @@ namespace BaesianNetworks {
 			return 0.0;
 		}
 
-		private double[] ProcessEquation(Queue<Component> queue, BaesNetwork net, Evidence[] evidence) {
-			Component toSolve = queue.Dequeue();
+		private double[] ProcessEquation(Stack<Component> queue, BaesNetwork net, Evidence[] evidence) {
+			Component toSolve = queue.Pop();
 			if (queue.Count > 0) {
 				double[] tempSolution = toSolve.Solve(net, evidence);
 				queue.Peek().AddToTop(tempSolution);

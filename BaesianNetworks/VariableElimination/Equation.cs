@@ -75,24 +75,48 @@ namespace BaesianNetworks {
             }
             return equation_queue;
         }
+
+        public Stack<Component> root() {
+            var stack = new Stack<Component>();
+            Component current = null;
+            foreach (var comp in equation) {
+                if (comp is SubQuery) {
+                    stack.Push(comp);
+                    continue;
+                }
+
+                if (current != null) {
+                    current.addComponent(comp);
+                    current = comp;
+                }
+                else {
+                    current = comp;
+                    stack.Push(current);
+                }
+            }
+            
+            return stack;
+        }
     }
 
     public interface Component {
         double[] Solve(BaesNetwork met, params Evidence[] evidences);
         void AddToTop(double[] tempSolution);
+
+        void addComponent(Component component);
     }
 
     
     class Summation : Component {
         private string sumOut;
         public string GetSumOut => sumOut;
-        private List<SubQuery> process;
+        private List<Component> process;
         private double[] solved;
-        public List<SubQuery> GetProcess => process;
+        public List<Component> GetProcess => process;
 
         public Summation(BaesNode bn) {
             sumOut = bn.getVariableName();
-            process = new List<SubQuery>();
+            process = new List<Component>();
         }
 
         public void AddSubQuery(SubQuery sq) {
@@ -104,10 +128,15 @@ namespace BaesianNetworks {
             solved = tempSolution;
         }
 
+        public void addComponent(Component component) {
+            process.Add(component);
+        }
+
         public double[] Solve(BaesNetwork net, params Evidence[] evidences) {
             var results = new Queue<double[]>();
             foreach (var value in net.getNode(sumOut).GetValues()) {
                 var inner_result = new Queue<double[]>();
+                process.Reverse();
                 foreach (var p in process) {
                     var evidence = new Evidence(sumOut, value);
                     inner_result.Enqueue(p.Solve(net, evidences.Concat(new[] {evidence}).ToArray()));
@@ -120,7 +149,7 @@ namespace BaesianNetworks {
         public override string ToString() {
             string o = "";
             o += '\u2211' + "\"" + sumOut + "\"";
-            foreach (SubQuery sq in process) {
+            foreach (Component sq in process) {
                 o += sq.ToString();
             }
             return o;
@@ -213,15 +242,26 @@ namespace BaesianNetworks {
             solved = tempSolution;
         }
 
+        public void addComponent(Component component) { }
+
         public double[] Solve(BaesNetwork net, params Evidence[] evidences) {
             List<int> e = new List<int>();
             foreach (var evidenceNeeded in variable.evidenceNeeded()) {
+                bool foundMatch = false;
                 foreach (var evidence in evidences) {
                     if (evidence.GetName().ToLower() == evidenceNeeded.ToLower()) {
                         e.Add(net.getNode(evidenceNeeded).getIndex(evidence.GetValue()));
+                        foundMatch = true;
+                        break;
                     }
                 }
+
+                if (!foundMatch) {
+                    
+                }
             }
+            
+            
             return variable.getProbabilities(e.ToArray());
         }
 
