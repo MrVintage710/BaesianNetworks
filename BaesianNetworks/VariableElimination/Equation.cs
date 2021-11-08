@@ -139,8 +139,10 @@ namespace BaesianNetworks {
                 process.Reverse();
                 foreach (var p in process) {
                     var evidence = new Evidence(sumOut, value);
-                    inner_result.Enqueue(p.Solve(net, evidences.Concat(new[] {evidence}).ToArray()));
+                    var r = p.Solve(net, evidences.Concat(new[] {evidence}).ToArray());
+                    if(r.Length > 0) inner_result.Enqueue(r);
                 }
+                process.Reverse();
                 results.Enqueue(factorProduct(inner_result));
             }
             return sumFacotrs(results);
@@ -231,11 +233,11 @@ namespace BaesianNetworks {
             dependencies = node.getParents();
             // define signature
             signature += variable.getVariableName() + " ";
+            factors.Add(variable);
             foreach (BaesNode bn in dependencies) { 
                 signature += bn.getVariableName() + " ";
                 factors.Add(bn);
             }
-            factors.Add(variable);
         }
 
         public void AddToTop(double[] tempSolution) {
@@ -245,23 +247,57 @@ namespace BaesianNetworks {
         public void addComponent(Component component) { }
 
         public double[] Solve(BaesNetwork net, params Evidence[] evidences) {
-            List<int> knownValues = new List<int>(factors.Count);
+            var knownValues = new Dictionary<string, int>(factors.Count);
 
-            var index = 0;
+            if (variable.getChildren().Length == 0) return new double[] { };
+
+                var index = 0;
             foreach (var factor in factors) {
                 bool valueFound = false;
                 foreach (var evidence in evidences) {
                     if (factor.getVariableName().ToLower() == evidence.GetName().ToLower()) {
-                        knownValues[index] = factor.getIndex(evidence.GetValue());
+                        knownValues.Add(factor.getVariableName().ToLower(), factor.getIndex(evidence.GetValue()));
                         valueFound = true;
                     }
                 }
 
-                if (!valueFound) knownValues[index] = -1;
+                if (!valueFound) knownValues.Add(factor.getVariableName().ToLower(), -1);
                 index++;
             }
-            
-            return new double[]{};
+
+            var indexes = new List<int>();
+            foreach (var neededEvidence in variable.evidenceNeeded()) {
+                if(knownValues.ContainsKey(neededEvidence.ToLower())) 
+                    indexes.Add(knownValues[neededEvidence.ToLower()]);
+            }
+
+            var selfIndex = knownValues[variable.getVariableName().ToLower()];
+
+            if (dependencies.Length == 0) {
+                if (selfIndex != -1) return new[] {variable.getProbabilities()[selfIndex]};
+                else return variable.getProbabilities();
+            }
+
+            if (!indexes.Contains(-1)) {
+                if (selfIndex != -1) {
+                    return new double[] {variable.getProbabilities(indexes.ToArray())[selfIndex]};
+                }
+                else {
+                    return variable.getProbabilities(indexes.ToArray());
+                }
+            }
+            else {
+                var values = new List<double>();
+                var indexOfUnknownVariable = indexes.IndexOf(-1);
+                var unknownKnownVariable = net.getNode(variable.evidenceNeeded()[indexOfUnknownVariable]);
+
+                foreach (var value in unknownKnownVariable.GetValues()) {
+                    indexes[indexOfUnknownVariable] = unknownKnownVariable.getIndex(value);
+                    values.Add(variable.getProbabilities(indexes.ToArray())[selfIndex]);
+                }
+
+                return values.ToArray();
+            }
         }
 
         public override string ToString() {

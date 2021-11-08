@@ -64,9 +64,11 @@ namespace BaesianNetworks {
 				Equation equation = new Equation(statement, query, hiddenVariables, network);
 				Stack<Component> stack = equation.root();
 				//Queue<Component> queue = equation.AsQueue();
-				var o = ProcessEquation(stack, network, evidence);
+				//var o = ProcessEquation(stack, network, evidence);
 				//pass in evidence out here
-
+				
+				Console.WriteLine( string.Join(", ", stack.Pop().Solve(network, evidence)));
+				Console.WriteLine( string.Join(", ", stack.Pop().Solve(network, evidence)));
 			}
 			//Console.WriteLine(string.Join(", ", hiddenVariables));
 			
