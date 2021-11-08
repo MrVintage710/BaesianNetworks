@@ -40,10 +40,15 @@
     <ItemGroup>
         <Compile Include="BaesNetwork.cs" />
         <Compile Include="BaesNode.cs" />
-        <Compile Include="Driver.cs" />
+        <Compile Include="BayesianSolver.cs" />
         <Compile Include="ParceManager.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Evidence.cs" />
+        <Compile Include="QueryParcer.cs" />
+        <Compile Include="VariableElimination\Equation.cs" />
+        <Compile Include="VariableElimination\Matrix.cs" />
+        <Compile Include="VariableElimination\VariableEliminationSolver.cs" />
     </ItemGroup>
     <ItemGroup>
       <Content Include="BIF\alarm.bif">
