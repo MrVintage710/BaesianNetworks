@@ -51,6 +51,21 @@ namespace BaesianNetworks {
 			return null;
 		}
 
+		public double[] getProbabilities(string evidence) {
+			var info = QueryParser.parseEvidence(evidence);
+			var parentValues = new List<int>();
+			foreach (var parent in parents) {
+				foreach (var e in info) {
+					if (parent.getVariableName() == e.GetName()) {
+						parentValues.Add(parent.getIndex(e.GetValue()));
+					}
+				}
+			}
+
+			if (parentValues.Count != this.getDepth()) return null;
+			return getProbabilities(parentValues.Count);
+		}
+
 		public string getValue(int index) {
 			return values[index];
 		}
