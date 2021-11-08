@@ -48,6 +48,7 @@
         <Compile Include="Evidence.cs" />
         <Compile Include="QueryParcer.cs" />
         <Compile Include="VariableElimination\Equation.cs" />
+        <Compile Include="VariableElimination\Factor.cs" />
         <Compile Include="VariableElimination\Matrix.cs" />
         <Compile Include="VariableElimination\VariableEliminationSolver.cs" />
     </ItemGroup>

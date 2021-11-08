@@ -23,8 +23,8 @@ probability( EARTHQUAKE ) {
 
 probability( ALARM | EARTHQUAKE, BURGLARY ) {
     (true, true) 0.95, 0.05;
-    (true, false) 0.94, 0.06;
-    (false, true) 0.29, 0.71;
+    (true, false) 0.29, 0.71;
+    (false, true) 0.94, 0.06;
     (false, false) 0.001, 0.999;
 }
 

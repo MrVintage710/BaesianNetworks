@@ -26,6 +26,15 @@ namespace BaesianNetworks {
 
 			return evidences.ToArray();
 		}
+
+		public static string toEvidenceString(params Evidence[] evidence) {
+			string result = "";
+			foreach (var e in evidence) {
+				result += e.GetName() + "=\"" + e.GetValue() + "\",";
+			}
+
+			return result;
+		}
 		
 		private static Tuple<string[], Evidence[]> splitQuery(string query) {
 			var trimmed = String.Concat(query.Where(c => !Char.IsWhiteSpace(c)));

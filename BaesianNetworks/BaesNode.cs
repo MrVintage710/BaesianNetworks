@@ -42,6 +42,10 @@ namespace BaesianNetworks {
 			return parents.ToArray();
 		}
 
+		public string[] getParentNames() {
+			return parents.Select(p => p.getVariableName()).ToArray();
+		}
+
 		public double[] getProbabilities(params int[] parentValues) {
 			if (parentValues.Length != getDepth()) return new double[]{};
 			foreach (var entry in tableEntries) {
@@ -52,10 +56,13 @@ namespace BaesianNetworks {
 		}
 
 		public double[] getProbabilities(string evidence) {
-			var info = QueryParser.parseEvidence(evidence);
+			return getProbabilities(QueryParser.parseEvidence(evidence));
+		}
+		
+		public double[] getProbabilities(params Evidence[] evidence) {
 			var parentValues = new List<int>();
 			foreach (var parent in parents) {
-				foreach (var e in info) {
+				foreach (var e in evidence) {
 					if (parent.getVariableName() == e.GetName()) {
 						parentValues.Add(parent.getIndex(e.GetValue()));
 					}
@@ -63,7 +70,7 @@ namespace BaesianNetworks {
 			}
 
 			if (parentValues.Count != this.getDepth()) return null;
-			return getProbabilities(parentValues.Count);
+			return getProbabilities(parentValues.ToArray());
 		}
 
 		public string getValue(int index) {
