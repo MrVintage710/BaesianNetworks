@@ -96,8 +96,11 @@ namespace BaesianNetworks {
         }
 
         public void AddSubQuery(SubQuery sq) {
-            // sub query is made out of a node
-            process.Add(sq);
+            // sub query is made out of a node ; 
+            // remove leaf nodes from the summation (they do not change the result of the algorithm and therefore
+            // do not need to be included)
+            if (sq.GetVariable.getChildren().Length > 0)
+                process.Add(sq);
         }
 
         public void AddToTop(double[] tempSolution) {
@@ -105,7 +108,7 @@ namespace BaesianNetworks {
         }
 
         public double[] Solve(params Evidence[] evidences) {
-            
+            return new double[]{0};
         } 
         
         public override string ToString() {
@@ -130,8 +133,14 @@ namespace BaesianNetworks {
         private List<BaesNode> factors;
         private double[] solved;
         
+        // Table made from factors
+        private List<string> factorComboTable;
+        private List<double> factorProbTable;
+        
         public SubQuery(BaesNode node) {
             factors = new List<BaesNode>();
+            factorComboTable = new List<string>();
+            factorProbTable = new List<double>();
             variable = node;
             dependencies = node.getParents();
             // define signature
@@ -141,6 +150,24 @@ namespace BaesianNetworks {
                 factors.Add(bn);
             }
             factors.Add(variable);
+            
+            // Create factor table
+            double sections = 2;
+            double total = Math.Pow(2,factors.Count());
+            
+            // TODO check if this works , want order: greatest -> least 
+            //factors.Sort((x,y)=>x.numberOfValues().CompareTo(y.numberOfValues()));
+            factors.Sort((x,y)=>y.numberOfValues().CompareTo(x.numberOfValues()));
+            
+            int driver = factors[0].GetValues().Length;
+            int element_count = 0;
+            foreach (BaesNode factor in factors) {
+                 
+                for (int s = 0; s < sections; s++) {
+                            
+                }
+                sections = Math.Pow(sections, 2);
+            } 
         }
 
         public void AddToTop(double[] tempSolution) {
@@ -149,6 +176,7 @@ namespace BaesianNetworks {
 
         public double[] Solve(params Evidence[] evidences) {
             
+            return new double[] {0};
         }
 
         public override string ToString() {

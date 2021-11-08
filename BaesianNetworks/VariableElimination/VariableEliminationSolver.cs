@@ -63,9 +63,10 @@ namespace BaesianNetworks {
 			foreach (string query in variables) {
 				Equation equation = new Equation(statement, query, hiddenVariables, network);
 				Queue<Component> queue = equation.AsQueue();
-				
+				ProcessEquation(queue);
+
 				//pass in evidence out here
-				
+
 			}
 			//Console.WriteLine(string.Join(", ", hiddenVariables));
 			
