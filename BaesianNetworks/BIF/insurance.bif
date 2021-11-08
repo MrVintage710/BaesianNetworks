@@ -442,7 +442,7 @@ probability ( OtherCarCost | Accident, RuggedAuto ) {
   (Moderate, EggShell) 0.60000, 0.20000, 0.19998, 0.00002;
   (Severe, EggShell) 0.20000, 0.40000, 0.39996, 0.00004;
   (None, Football) 1.0, 0.0, 0.0, 0.0;
-  (Mild, Football) 9.799657e-01, 9.999650e-03, 9.984651e-03, 4.999825e-05;
+  (Mild, Football) 0.9799657, 0.009999650, 0.009984651, 0.00004999825;
   (Moderate, Football) 0.50000, 0.20000, 0.29997, 0.00003;
   (Severe, Football) 0.10000, 0.50000, 0.39994, 0.00006;
   (None, Tank) 1.0, 0.0, 0.0, 0.0;
