@@ -1,0 +1,24 @@
+﻿The following authors contributed to the following code. 
+
+Brooks:
+    Equation.cs
+    Factor.cs
+    VariableEliminationSolver.cs 
+    BaesNode.cs
+    BayesianSolver.cs
+    BaesNetwork.cs
+    BaesNode.cs
+    BayesianSolver.cs
+    ParceManager.cs
+    QueryParcer.cs
+    Report.cs
+
+Nathaniel:
+    Evidence.cs
+    GibbsSampling.cs
+
+Kristoff:
+    Equation.cs
+    Factor.cs
+    VariableEliminationSolver.cs
+    Driver.cs
