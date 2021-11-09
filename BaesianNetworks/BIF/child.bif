@@ -22,13 +22,13 @@ variable LVHreport {
   type discrete [ 2 ] { yes, no };
 }
 variable LowerBodyO2 {
-  type discrete [ 3 ] { <5, 5-12, 12+ };
+  type discrete [ 3 ] { LT_5, 5_TO_12, 12_OR_MORE };
 }
 variable RUQO2 {
-  type discrete [ 3 ] { <5, 5-12, 12+ };
+  type discrete [ 3 ] { LT_5, 5_TO_12, 12_OR_MORE };
 }
 variable CO2Report {
-  type discrete [ 2 ] { <7.5, >=7.5 };
+  type discrete [ 2 ] { LT_7.5, LTEQ_7.5 };
 }
 variable XrayReport {
   type discrete [ 5 ] { Normal, Oligaemic, Plethoric, Grd_Glass, Asy/Patchy };
@@ -40,7 +40,7 @@ variable GruntingReport {
   type discrete [ 2 ] { yes, no };
 }
 variable Age {
-  type discrete [ 3 ] { 0-3_days, 4-10_days, 11-30_days };
+  type discrete [ 3 ] { 0_TO_3_days, 4_TO_10_days, 11-30_days };
 }
 variable LVH {
   type discrete [ 2 ] { yes, no };

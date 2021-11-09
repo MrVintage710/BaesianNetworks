@@ -64,11 +64,11 @@ namespace BaesianNetworks {
             // VEsolver.solve("Disease", child); 
             // GibsSolver.solve("Disease", child);
             // Little Evidence ----------------------
-            string LE_child = "|LowerBodyO2=“<5”,RUQO2=“>=12”,CO2Report=“>=7.5”,XrayReport=Asy/Patchy";
+            string LE_child = "|LowerBodyO2=\"LT_5\",RUQO2=/\"12_OR_MORE\",CO2Report=\"LTEQ_7.5\",XrayReport=\"Asy/Patchy\"";
             // VEsolver.solve("Disease" + LE_child, child);
             // GibsSolver.solve("Disease" + LE_child, child);
             // Moderate Evidence -------------------------
-            string MO_child = LE_child + ",GruntingReport=Yes,LVHReport=Yes,Age=“11-30 Days”";
+            string MO_child = LE_child + ",GruntingReport=Yes,LVHReport=Yes,Age=\"11-30_days\"";
             // VEsolver.solve("Disease" + MO_child, child);
             // GibsSolver.solve("Disease" + MO_child, child);
             
