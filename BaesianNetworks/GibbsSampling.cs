@@ -20,7 +20,7 @@ namespace BaesianNetworks
 		public double solve(string _query, BaesNetwork _network)
 		{
 			// The query split into given evidence and variables
-			Tuple<string[], Evidence[]> data = SplitQuery(_query);
+			Tuple<string[], Evidence[]> data = QueryParser.parseQuery(_query, _network);
 
 			// Keeps track of original query
 			for (int i = 0; i < data.Item1.Length; i++)
