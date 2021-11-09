@@ -14,6 +14,8 @@ namespace BaesianNetworks
 		Random random = new Random();
 		// List to hold the original query data
 		List<string> query = new List<string>();
+		// Variable to determine if a burn is in progress
+		bool isBurning;
 
 		public double solve(string _query, BaesNetwork _network)
 		{
@@ -115,9 +117,11 @@ namespace BaesianNetworks
 			}
 
 			// Burn the first 'i' samples
-			List<string> burnState = Sample(2000, nodeVariables, fixedEvidence, possibleValues, valueCount, initialState);
+			isBurning = true;
+			List<string> burnState = Sample(5000, nodeVariables, fixedEvidence, possibleValues, valueCount, initialState);
 			for (int i = 0; i < burnState.Count; i++)
 				Console.WriteLine(burnState[i]);
+			isBurning = false;
 
 			//
 			Console.WriteLine("\n\n");
@@ -125,7 +129,7 @@ namespace BaesianNetworks
 
 
 			// Start collecting more relevant samples
-			List<string> finalState = Sample(2000, nodeVariables, fixedEvidence, possibleValues, valueCount, burnState);
+			List<string> finalState = Sample(5000, nodeVariables, fixedEvidence, possibleValues, valueCount, burnState);
 			for (int i = 0; i < finalState.Count; i++)
 				Console.WriteLine(finalState[i]);
 
@@ -193,17 +197,20 @@ namespace BaesianNetworks
 				_state[randomIndex] = _possibleValues[randomIndex][randomValue];
 
 				// Count query values
-				for (int i = 0; i < _nodeVariables.Count; i++)
+				if (!isBurning)
                 {
-					if (query.Contains(_nodeVariables[i].getVariableName()))
-                    {
-						for (int j = 0; j < _possibleValues[i].Length; j++)
-                        {
-							if (_state[i].Equals(_possibleValues[i][j]))
-								_valueCount[i][j]++;
-                        }
+					for (int i = 0; i < _nodeVariables.Count; i++)
+					{
+						if (query.Contains(_nodeVariables[i].getVariableName()))
+						{
+							for (int j = 0; j < _possibleValues[i].Length; j++)
+							{
+								if (_state[i].Equals(_possibleValues[i][j]))
+									_valueCount[i][j]++;
+							}
+						}
 					}
-                }
+				}
 
 				Sample(_life - 1, _nodeVariables, _fixedEvidence, _possibleValues, _valueCount, _state);
 			}
