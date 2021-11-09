@@ -6,13 +6,8 @@ using System.Text.RegularExpressions;
 namespace BaesianNetworks {
 	internal class Program {
 		public static void Main(string[] args) {
-			var solver = new VariableEliminationSolver();
-			var net = new BaesNetwork("test.bif");
-
-			//var report = solver.solve("HYPOVOLEMIA|HRBP=HIGH,CO=LOW,BP=HIGH,HRSAT=LOW,HREKG=LOW,HISTORY=TRUE", net);
-			//Console.WriteLine(report);
-			
-			exampleVEProcess(net);
+			Driver driver = new Driver();
+			driver.RunTests();
 		}
 		
 		/// <summary>
