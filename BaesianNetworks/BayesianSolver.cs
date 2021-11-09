@@ -1,7 +1,9 @@
+using System;
+
 namespace BaesianNetworks {
 	public interface BayesianSolver {
 
-		double solve(string statement, BaesNetwork network);
+		Report solve(string statement, BaesNetwork network);
 
 	}
 }

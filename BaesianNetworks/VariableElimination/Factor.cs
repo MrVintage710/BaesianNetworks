@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,11 +22,14 @@ namespace BaesianNetworks {
 			var values = node.getProbabilities(evidence);
 			if (values != null) {
 				foreach (var e in evidence) {
-					if (e.GetName().ToLower() == node.getVariableName().ToLower())
+					if (e.GetName().ToLower() == node.getVariableName().ToLower()) {
+						Console.WriteLine(values[node.getIndex(e.GetValue())]);
 						return values[node.getIndex(e.GetValue())];
+					}
+						
 				}
 			}
-			
+
 			throw new InvalidDataException(
 			                               "Not enough evidence solve factor for Node '" 
 			                             + node.getVariableName() 
@@ -59,12 +63,12 @@ namespace BaesianNetworks {
 		}
 		
 		public double solve(params Evidence[] evidence) {
-			if(reliedUpon.Length > evidence.Length)
-				throw new InvalidDataException(
-				                               "Not enough evidence solve factor for Node '" 
-				                             + node.getVariableName() 
-				                             + "'. Evidence needed: " + string.Join(", ", reliesOn())
-				                             + ". Evidence had: " + string.Join<Evidence>(", ", evidence));
+//			if(reliedUpon.Length > evidence.Length)
+//				throw new InvalidDataException(
+//				                               "Not enough evidence solve factor for Node '" 
+//				                             + node.getVariableName() 
+//				                             + "'. Evidence needed: " + string.Join(", ", reliesOn())
+//				                             + ". Evidence had: " + string.Join<Evidence>(", ", evidence));
 			
 			var add = new List<double>();
 			foreach (var valueName in node.GetValues()) {
@@ -77,7 +81,13 @@ namespace BaesianNetworks {
 					mult.Add(factor.solve(allEvidence.ToArray()));
 				}
 
-				var product = mult.Aggregate((c, n) => c * n);
+				var product = 0.0;
+				try {
+					product = mult.Aggregate((c, n) => c * n);
+				}
+				catch(InvalidOperationException e) {
+					Console.WriteLine(e);
+				}
 				add.Add(product);
 			}
 

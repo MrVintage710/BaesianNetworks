@@ -8,6 +8,8 @@ namespace BaesianNetworks {
         private List<Component> equation;
         private string queryStatement;
         private BaesNode queryNode;
+        private List<Factor> factorList; 
+
 
         public Equation(string statement, string query, IEnumerable<BaesNode> hiddenVars, BaesNetwork network) {
             equation = new List<Component>();
@@ -28,11 +30,34 @@ namespace BaesianNetworks {
                 subQueries.Add(new SubQuery(bn));
             }
             OrderEquation(summations, subQueries);
-            EquationToFactors();
+
+            var index = 0;
+            Component current = equation[index];
+            while (index < equation.Count - 1) {
+                Component next = equation[index+1];
+
+                if (current is SubQuery) {
+                    index++;
+                    current = equation[index];
+                    continue;
+                }
+
+                if (current is Summation) {
+                    var sum = (Summation) current;
+                    sum.AddComponent(next);
+                    current = next;
+                    equation.RemoveAt(index + 1);
+                }
+            }
+
             // DEBUG
             Console.WriteLine(this);
         }
 
+        public List<Component> getEquation() {
+            return equation;
+        }
+        
         public override string ToString() {
             string o = "";
             o += "(" + queryStatement + ") = ";
@@ -51,7 +76,7 @@ namespace BaesianNetworks {
             foreach (SubQuery sq in subQueries) {
                 foreach (Summation summation in summations) {
                     if (sq.GetSignature.Contains(summation.GetSumOut) && !sq.marked) {
-                        summation.AddSubQuery(sq);
+                        summation.AddComponent(sq);
                         sq.marked = true;
                     }
                 }
@@ -64,60 +89,42 @@ namespace BaesianNetworks {
 
             equation.Reverse();
         }
-
-        private void EquationToFactors() {
-        }
-
-        public Queue<Component> AsQueue() {
-            Queue<Component> equation_queue = new Queue<Component>();
-            for (int i = equation.Count-1; i > -1; i--) {
-                equation_queue.Enqueue(equation[i]);
-            }
-            return equation_queue;
-        }
     }
 
     public interface Component {
-        double[] Solve(params Evidence[] evidences);
-        void AddToTop(double[] tempSolution);
+        Factor getFactor();
     }
 
     
     class Summation : Component {
-        private string sumOut;
-        public string GetSumOut => sumOut;
-        private List<SubQuery> process;
-        private double[] solved;
-        public List<SubQuery> GetProcess => process;
+        private BaesNode sumOut;
+        public string GetSumOut => sumOut.getVariableName();
+        private List<Component> process;
 
         public Summation(BaesNode bn) {
-            sumOut = bn.getVariableName();
-            process = new List<SubQuery>();
+            sumOut = bn;
+            process = new List<Component>();
         }
 
-        public void AddSubQuery(SubQuery sq) {
-            // sub query is made out of a node ; 
-            // remove leaf nodes from the summation (they do not change the result of the algorithm and therefore
-            // do not need to be included)
-            if (sq.GetVariable.getChildren().Length > 0)
-                process.Add(sq);
+        public void AddComponent(Component sq) {
+            process.Add(sq);
         }
 
-        public void AddToTop(double[] tempSolution) {
-            solved = tempSolution;
-        }
-
-        public double[] Solve(params Evidence[] evidences) {
-            return new double[]{0};
-        } 
-        
         public override string ToString() {
             string o = "";
             o += '\u2211' + "\"" + sumOut + "\"";
-            foreach (SubQuery sq in process) {
+            foreach (Component sq in process) {
                 o += sq.ToString();
             }
             return o;
+        }
+
+        public Factor getFactor() {
+            List<Factor> subFactors = new List<Factor>();
+            foreach (var subQuery in process) {
+                subFactors.Add(subQuery.getFactor());
+            }
+            return new FactorSumation(sumOut, subFactors.ToArray());
         }
     }
 
@@ -170,15 +177,6 @@ namespace BaesianNetworks {
             } 
         }
 
-        public void AddToTop(double[] tempSolution) {
-            solved = tempSolution;
-        }
-
-        public double[] Solve(params Evidence[] evidences) {
-            
-            return new double[] {0};
-        }
-
         public override string ToString() {
             string o = "";
             o += " P(" + variable.getVariableName();
@@ -190,6 +188,10 @@ namespace BaesianNetworks {
             if (o.EndsWith(",")) o = o.Remove(o.Length-1);
             o += ") ";
             return o;
+        }
+
+        public Factor getFactor() {
+            return new BaseFactor(variable);
         }
     }
     

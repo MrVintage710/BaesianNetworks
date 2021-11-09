@@ -7,10 +7,19 @@ namespace BaesianNetworks {
 	internal class Program {
 		public static void Main(string[] args) {
 			var solver = new VariableEliminationSolver();
-			var net = new BaesNetwork("test.bif");
-			//Console.WriteLine(string.Join(",", net.getNode("MARYCALLS").getProbabilities("ALARM=TRUE")));
-			//solver.solve("BURGLARY|JOHNCALLS=TRUE,MARYCALLS=TRUE", net);
+			var net = new BaesNetwork("alarm.bif");
 
+			var report = solver.solve("ERRLOWOUTPUT|HRBP=HIGH,CO=LOW,BP=HIGH,HRSAT=LOW,HREKG=LOW,HISTORY=TRUE.", net);
+			Console.WriteLine(report);
+			
+			//exampleVEProcess(net);
+		}
+		
+		/// <summary>
+		/// This function is not mandatory for your algorithm to work, this is just a walk through on how the VE works
+		/// </summary>
+		/// <param name="net"></param>
+		private static void exampleVEProcess(BaesNetwork net) {
 			BaseFactor f1 = new BaseFactor(net.getNode("BURGLARY"));
 			BaseFactor f2 = new BaseFactor(net.getNode("EARTHQUAKE"));
 			BaseFactor f3 = new BaseFactor(net.getNode("ALARM"));
@@ -29,13 +38,6 @@ namespace BaesianNetworks {
 			
 			Console.WriteLine(unNormalizedResultIfTrue/normalization);
 			Console.WriteLine(unNormalizedResultIfFalse/normalization);
-			
-			//FactorSumation f3 = new FactorSumation(net.getNode("EARTHQUAKE"), f1, f2);
-			//Console.WriteLine(string.Join(", ", f3.reliesOn()));
-			//Console.WriteLine(f3.solve(new Evidence("ALARM", "TRUE"),
-			//                          new Evidence("BURGLARY", "TRUE")));
-			//Console.WriteLine(f3.solve(new Evidence("ALARM", "TRUE"),
-			//                           new Evidence("BURGLARY", "FALSE")));
 		}
 	}
 }
