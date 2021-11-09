@@ -7,12 +7,10 @@ namespace BaesianNetworks
 {
 	public class GibbsSampling
 	{
+		// Random class for incorporating randomness
 		Random random = new Random();
-
+		// List to hold the original query data
 		List<string> query = new List<string>();
-
-		int falseCount = 0;
-		int trueCount = 0;
 
 		public double solve(string _query, BaesNetwork _network)
 		{
@@ -61,23 +59,40 @@ namespace BaesianNetworks
 					childrenParents.Add(temp[j]);
             }
 
-			// List of all variables under the Markov Blanket
+			// List of all variables (Nodes) under the Markov Blanket
+			List<BaesNode> nodeVariables = new List<BaesNode>();
+			for (int i = 0; i < parents.Count; i++)
+				nodeVariables.Add(parents[i]);
+			for (int i = 0; i < children.Count; i++)
+				nodeVariables.Add(children[i]);
+			for (int i = 0; i < childrenParents.Count; i++)
+				nodeVariables.Add(childrenParents[i]);
+
+			/*// List of all variables (Mutable Evidence) under the Markov Blanket
 			List<Evidence> variables = new List<Evidence>();
 			for (int i = 0; i < parents.Count; i++)
 			{
-				Evidence tempEvidence = new Evidence(parents[i].ToString(), "TRUE");
+				Evidence tempEvidence = new Evidence(parents[i].ToString(), "");
 				variables.Add(tempEvidence);
 			}
 			for (int i = 0; i < children.Count; i++)
 			{
-				Evidence tempEvidence = new Evidence(children[i].ToString(), "TRUE");
+				Evidence tempEvidence = new Evidence(children[i].ToString(), "");
 				variables.Add(tempEvidence);
 			}
 			for (int i = 0; i < childrenParents.Count; i++)
 			{
-				Evidence tempEvidence = new Evidence(childrenParents[i].ToString(), "TRUE");
+				Evidence tempEvidence = new Evidence(childrenParents[i].ToString(), "");
 				variables.Add(tempEvidence);
-			}
+			}*/
+
+			// List to hold all possilbe values that each node could be
+			List<string[]> possibleValues = new List<string[]>();
+			for (int i = 0; i < nodeVariables.Count; i++)
+            {
+				string[] tempPossibleValues = nodeVariables[i].GetValues();
+				possibleValues.Add(tempPossibleValues);
+            }
 
 
 
@@ -86,20 +101,10 @@ namespace BaesianNetworks
 			// Creates the initial starting state
 			List<string> initialState = new List<string>();
 			// Randomly initializes the starting state
-			for (int i = 0; i < variables.Count; i++)
+			for (int i = 0; i < nodeVariables.Count; i++)
             {
-				int randomValue = random.Next(2);
-				switch (randomValue)
-				{
-					case 0:
-						initialState.Add("FALSE");
-						break;
-					case 1:
-						initialState.Add("TRUE");
-						break;
-					default:
-						break;
-				}
+				int randomIndex = random.Next(possibleValues[i].Length);
+				initialState.Add(possibleValues[i][randomIndex]);
 			}
 			for (int i = 0; i < fixedEvidence.Count; i++)
 				initialState.Add(fixedEvidence[i].GetValue());
@@ -108,76 +113,101 @@ namespace BaesianNetworks
 
 			// SAMPLING
 
+
+			//
 			for (int i = 0; i < initialState.Count; i++)
 			{
 				Console.WriteLine(initialState[i]);
 			}
 			Console.WriteLine("\n\n");
+			//
+
+			List<int[]> valueCount = new List<int[]>();
+			for (int i = 0; i < possibleValues.Count; i++)
+            {
+				int[] tempValueCount = new int[possibleValues[i].Length];
+				valueCount.Add(tempValueCount);
+			}
 
 			// Burn the first 'i' samples
-			List<string> burnState = Sample(100, variables, fixedEvidence, initialState);
+			List<string> burnState = Sample(1000, nodeVariables, fixedEvidence, possibleValues, valueCount, initialState);
 			for (int i = 0; i < burnState.Count; i++)
 				Console.WriteLine(burnState[i]);
 
+			//
 			Console.WriteLine("\n\n");
+			//
+
 
 			// Start collecting more relevant samples
-			List<string> finalState = Sample(100, variables, fixedEvidence, initialState);
+			List<string> finalState = Sample(1000, nodeVariables, fixedEvidence, possibleValues, valueCount, burnState);
 			for (int i = 0; i < finalState.Count; i++)
 				Console.WriteLine(finalState[i]);
 
-			Console.WriteLine("\n" + trueCount + " <- true, false -> : " + falseCount);
+			// Creates a list of data that needs to be normalized
+			List<int> dataToNormalize = new List<int>();
+			for (int i = 0; i < nodeVariables.Count; i++)
+			{
+				if (query.Contains(nodeVariables[i].getVariableName()))
+				{
+					for (int j = 0; j < possibleValues[i].Length; j++)
+						dataToNormalize.Add(valueCount[i][j]);
+				}
+			}
 
-			Console.WriteLine("\n normalize: " + Normalize(trueCount, falseCount));
-			return Normalize(trueCount, falseCount);
+			for (int i = 0; i < valueCount.Count; i++)
+				for (int j = 0; j < valueCount[i].Length; j++)
+					Console.WriteLine("ValueCount " + i + " " + valueCount[i][j]);
+
+
+			Console.WriteLine(Normalize(dataToNormalize)[0]);
+			return Normalize(dataToNormalize)[0];
 		}
 
-		List<string> Sample(int _life, List<Evidence> _variables, List<Evidence> _fixedEvidence, List<string> _state)
+		List<double> Normalize(List<int> _data)
+        {
+			int total = 0;
+			for (int i = 0; i < _data.Count; i++)
+				total += _data[i];
+
+			List<double> probabilities = new List<double>();
+			for (int i = 0; i < _data.Count; i++)
+            {
+				double tempDouble = (double)_data[i] / (double)total;
+				probabilities.Add(tempDouble);
+            }
+
+			return probabilities;
+        }
+
+		List<string> Sample(int _life, List<BaesNode> _nodeVariables, List<Evidence> _fixedEvidence, List<string[]> _possibleValues, List<int[]> _valueCount, List<string> _state)
         {
 			if (_life > 0)
             {
-				// Random value for selecting a random value
-				int randomValue = random.Next(2);
 				// Random value for selecting a random variable
-				int randomIndex = random.Next(_variables.Count);
+				int randomIndex = random.Next(_nodeVariables.Count);
+				// Random value for selecting a random value
+				int randomValue = random.Next(_possibleValues[randomIndex].Length);
 
 				// Randomly change the randomly selected variable
-				switch (randomValue)
-				{
-					case 0:
-						_state[randomIndex] = "FALSE";
-						break;
-					case 1:
-						_state[randomIndex] = "TRUE";
-						break;
-					default:
-						break;
-				}
+				_state[randomIndex] = _possibleValues[randomIndex][randomValue];
 
-				for (int i = 0; i < _variables.Count; i++)
+				// Count query values
+				for (int i = 0; i < _nodeVariables.Count; i++)
                 {
-					if (query.Contains(_variables[i].GetName()))
+					if (query.Contains(_nodeVariables[i].getVariableName()))
                     {
-						//Console.WriteLine("\nval: " + _variables[i].GetValue());
-						if (_state[i].Equals("TRUE"))
-							trueCount++;
-						else
-							falseCount++;
+						for (int j = 0; j < _possibleValues[i].Length; j++)
+                        {
+							if (_state[i].Equals(_possibleValues[i][j]))
+								_valueCount[i][j]++;
+                        }
 					}
                 }
 
-				Sample(_life - 1, _variables, _fixedEvidence, _state);
+				Sample(_life - 1, _nodeVariables, _fixedEvidence, _possibleValues, _valueCount, _state);
 			}
 			return _state;
-        }
-
-		double Normalize(int _first, int _second)
-        {
-			int total = _first + _second;
-			double f = (double)_first / (double)total;
-			double s = (double)_second / (double)total;
-
-			return f;
         }
 
 		Tuple<string[], Evidence[]> SplitQuery(string query)
