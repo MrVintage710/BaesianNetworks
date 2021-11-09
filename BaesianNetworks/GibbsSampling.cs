@@ -71,6 +71,11 @@ namespace BaesianNetworks
 				nodeVariables.Add(children[i]);
 			for (int i = 0; i < childrenParents.Count; i++)
 				nodeVariables.Add(childrenParents[i]);
+			for (int i = 0; i < initialNodes.Length; i++)
+            {
+				if (!nodeVariables.Contains(initialNodes[i]))
+					nodeVariables.Add(initialNodes[i]);
+            }
 
 			// List to hold all possilbe values that each node could be
 			List<string[]> possibleValues = new List<string[]>();
