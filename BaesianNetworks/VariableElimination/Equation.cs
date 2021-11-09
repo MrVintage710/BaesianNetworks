@@ -10,7 +10,14 @@ namespace BaesianNetworks {
         private BaesNode queryNode;
         private List<Factor> factorList; 
 
-
+        /// <summary>
+        /// Constructor for equation. Creates the hidden variables and the dependencies in the equation, then
+        /// orders the equation and turn the equation into factors. 
+        /// </summary>
+        /// <param name="statement"></param>
+        /// <param name="query"></param>
+        /// <param name="hiddenVars"></param>
+        /// <param name="network"></param>
         public Equation(string statement, string query, IEnumerable<BaesNode> hiddenVars, BaesNetwork network) {
             equation = new List<Component>();
             queryStatement = statement;
@@ -54,10 +61,18 @@ namespace BaesianNetworks {
             Console.WriteLine(this);
         }
 
+        /// <summary>
+        /// Gets the equation.
+        /// </summary>
+        /// <returns></returns>
         public List<Component> getEquation() {
             return equation;
         }
         
+        /// <summary>
+        /// Helper method to print the equation.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() {
             string o = "";
             o += "(" + queryStatement + ") = ";
@@ -66,12 +81,16 @@ namespace BaesianNetworks {
             }
             return o;
         }
-
+        
+        /// <summary>
+        /// Order the Equation. Traveling through the equation right to left, compare each subquery to the closest
+        /// summation; if there exists a variable in the subquery which matches the summation, add that variable
+        /// to the summation (removing the subquery from the equation and adding it to the subquery).
+        /// If the subquery does not match any of the summations, then move it to the beginning of the equation
+        /// </summary>
+        /// <param name="summations"></param>
+        /// <param name="subQueries"></param>
         private void OrderEquation(List<Summation> summations, List<SubQuery> subQueries) {
-            // Order the Equation. Traveling through the equation right to left, compare each subquery to the closest
-            // summation; if there exists a variable in the subquery which matches the summation, add that variable
-            // to the summation (removing the subquery from the equation and adding it to the subquery).
-            // If the subquery does not match any of the summations, then move it to the beginning of the equation
             summations.Reverse();
             foreach (SubQuery sq in subQueries) {
                 foreach (Summation summation in summations) {
@@ -81,35 +100,50 @@ namespace BaesianNetworks {
                     }
                 }
             }
-
             foreach (Summation summation in summations) equation.Add(summation);
             foreach (SubQuery sq in subQueries) {
                 if (!sq.marked) equation.Add(sq);
             }
-
             equation.Reverse();
         }
     }
 
+    /// <summary>
+    /// Define Component Interface
+    /// </summary>
     public interface Component {
         Factor getFactor();
     }
 
-    
+    /// <summary>
+    /// Summation Class to contain all of the subqueries. 
+    /// </summary>
     class Summation : Component {
         private BaesNode sumOut;
         public string GetSumOut => sumOut.getVariableName();
         private List<Component> process;
 
+        /// <summary>
+        /// Summation constructur. Sets values to sumOut and process.
+        /// </summary>
+        /// <param name="bn"></param>
         public Summation(BaesNode bn) {
             sumOut = bn;
             process = new List<Component>();
         }
 
+        /// <summary>
+        /// Adds a component to the process.
+        /// </summary>
+        /// <param name="sq"></param>
         public void AddComponent(Component sq) {
             process.Add(sq);
         }
 
+        /// <summary>
+        /// Helper method to print out the summation
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() {
             string o = "";
             o += '\u2211' + "\"" + sumOut + "\"";
@@ -119,6 +153,10 @@ namespace BaesianNetworks {
             return o;
         }
 
+        /// <summary>
+        /// Converts a subquery in the process list to a factor and returns it.
+        /// </summary>
+        /// <returns></returns>
         public Factor getFactor() {
             List<Factor> subFactors = new List<Factor>();
             foreach (var subQuery in process) {
@@ -128,6 +166,9 @@ namespace BaesianNetworks {
         }
     }
 
+    /// <summary>
+    /// SubQuery Class. Contains all of the dependencies and node information.
+    /// </summary>
     class SubQuery : Component {
         private BaesNode variable;
         public BaesNode GetVariable => variable;
@@ -144,6 +185,10 @@ namespace BaesianNetworks {
         private List<string> factorComboTable;
         private List<double> factorProbTable;
         
+        /// <summary>
+        /// Constructor for SubQuery class. Instantiates the BaesNode variable and its dependencies. 
+        /// </summary>
+        /// <param name="node"></param>
         public SubQuery(BaesNode node) {
             factors = new List<BaesNode>();
             factorComboTable = new List<string>();
@@ -177,6 +222,10 @@ namespace BaesianNetworks {
             } 
         }
 
+        /// <summary>
+        /// Helper method for SubQuery to print a nice format.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() {
             string o = "";
             o += " P(" + variable.getVariableName();
@@ -190,6 +239,10 @@ namespace BaesianNetworks {
             return o;
         }
 
+        /// <summary>
+        /// Returns the factor based from the current SubQuery.
+        /// </summary>
+        /// <returns></returns>
         public Factor getFactor() {
             return new BaseFactor(variable);
         }
