@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace BaesianNetworks
 {
+	/// <summary>
+    /// Gibbs Sampling
+    /// </summary>
 	public class GibbsSampling
 	{
 		// Random class for incorporating randomness
@@ -112,7 +115,7 @@ namespace BaesianNetworks
 			}
 
 			// Burn the first 'i' samples
-			List<string> burnState = Sample(1000, nodeVariables, fixedEvidence, possibleValues, valueCount, initialState);
+			List<string> burnState = Sample(2000, nodeVariables, fixedEvidence, possibleValues, valueCount, initialState);
 			for (int i = 0; i < burnState.Count; i++)
 				Console.WriteLine(burnState[i]);
 
@@ -122,7 +125,7 @@ namespace BaesianNetworks
 
 
 			// Start collecting more relevant samples
-			List<string> finalState = Sample(1000, nodeVariables, fixedEvidence, possibleValues, valueCount, burnState);
+			List<string> finalState = Sample(2000, nodeVariables, fixedEvidence, possibleValues, valueCount, burnState);
 			for (int i = 0; i < finalState.Count; i++)
 				Console.WriteLine(finalState[i]);
 
@@ -146,6 +149,11 @@ namespace BaesianNetworks
 			return Normalize(dataToNormalize)[0];
 		}
 
+		/// <summary>
+        /// Normalizes input data so it all adds up to '1'
+        /// </summary>
+        /// <param name="_data"></param>
+        /// <returns></returns>
 		List<double> Normalize(List<int> _data)
         {
 			int total = 0;
@@ -162,6 +170,16 @@ namespace BaesianNetworks
 			return probabilities;
         }
 
+		/// <summary>
+        /// Samples from list of variables, randomly setting its value and counting values of the queried variable
+        /// </summary>
+        /// <param name="_life"></param>
+        /// <param name="_nodeVariables"></param>
+        /// <param name="_fixedEvidence"></param>
+        /// <param name="_possibleValues"></param>
+        /// <param name="_valueCount"></param>
+        /// <param name="_state"></param>
+        /// <returns></returns>
 		List<string> Sample(int _life, List<BaesNode> _nodeVariables, List<Evidence> _fixedEvidence, List<string[]> _possibleValues, List<int[]> _valueCount, List<string> _state)
         {
 			if (_life > 0)
@@ -192,6 +210,11 @@ namespace BaesianNetworks
 			return _state;
         }
 
+		/// <summary>
+        /// Splits the input query
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
 		Tuple<string[], Evidence[]> SplitQuery(string query)
 		{
 			var trimmed = String.Concat(query.Where(c => !Char.IsWhiteSpace(c)));
