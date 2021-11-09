@@ -41,7 +41,7 @@ namespace BaesianNetworks {
 			var first = trimmed.Split('|');
 			
 			if(first.Length < 2) 
-				throw new InvalidDataException("'" + query + "' is not the right format for a query.");
+				return new Tuple<string[], Evidence[]>(query.Split(','), new Evidence[]{});
 
 			var queried = first[0].Split(',');
 			var evidence = first.Length > 1 ? parseEvidence(first[1]) : new Evidence[] { };

@@ -63,12 +63,12 @@ namespace BaesianNetworks {
 		}
 		
 		public double solve(params Evidence[] evidence) {
-//			if(reliedUpon.Length > evidence.Length)
-//				throw new InvalidDataException(
-//				                               "Not enough evidence solve factor for Node '" 
-//				                             + node.getVariableName() 
-//				                             + "'. Evidence needed: " + string.Join(", ", reliesOn())
-//				                             + ". Evidence had: " + string.Join<Evidence>(", ", evidence));
+			if(reliedUpon.Length > evidence.Length)
+				throw new InvalidDataException(
+				                               "Not enough evidence solve factor for Node '" 
+				                             + node.getVariableName() 
+				                             + "'. Evidence needed: " + string.Join(", ", reliesOn())
+				                             + ". Evidence had: " + string.Join<Evidence>(", ", evidence));
 			
 			var add = new List<double>();
 			foreach (var valueName in node.GetValues()) {
@@ -81,17 +81,13 @@ namespace BaesianNetworks {
 					mult.Add(factor.solve(allEvidence.ToArray()));
 				}
 
-				var product = 0.0;
-				try {
-					product = mult.Aggregate((c, n) => c * n);
-				}
-				catch(InvalidOperationException e) {
-					Console.WriteLine(e);
-				}
+				var product = mult.Aggregate((c, n) => c * n);
 				add.Add(product);
 			}
 
-			return add.Aggregate((c, n) => c + n);
+			var sum = add.Aggregate((c, n) => c + n);
+			Console.WriteLine("Sumation Solved | " + sum);
+			return sum;
 		}
 
 		public string[] reliesOn() {

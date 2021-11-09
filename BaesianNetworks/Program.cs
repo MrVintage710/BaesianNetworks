@@ -7,9 +7,9 @@ namespace BaesianNetworks {
 	internal class Program {
 		public static void Main(string[] args) {
 			var solver = new VariableEliminationSolver();
-			var net = new BaesNetwork("alarm.bif");
+			var net = new BaesNetwork("insurance.bif");
 
-			var report = solver.solve("ERRLOWOUTPUT|HRBP=HIGH,CO=LOW,BP=HIGH,HRSAT=LOW,HREKG=LOW,HISTORY=TRUE.", net);
+			var report = solver.solve("MedCost|Age=Adolescent,GoodStudent=False,SeniorTrain=False,DrivQuality=Poor", net);
 			Console.WriteLine(report);
 			
 			//exampleVEProcess(net);
