@@ -17,7 +17,7 @@ namespace BaesianNetworks
 		// Variable to determine if a burn is in progress
 		bool isBurning;
 
-		public double solve(string _query, BaesNetwork _network)
+		public List<double> solve(string _query, BaesNetwork _network)
 		{
 			// The query split into given evidence and variables
 			Tuple<string[], Evidence[]> data = SplitQuery(_query);
@@ -101,13 +101,13 @@ namespace BaesianNetworks
 			// SAMPLING
 
 
-			//
+			/*//
 			for (int i = 0; i < initialState.Count; i++)
 			{
 				Console.WriteLine(initialState[i]);
 			}
 			Console.WriteLine("\n\n");
-			//
+			//*/
 
 			List<int[]> valueCount = new List<int[]>();
 			for (int i = 0; i < possibleValues.Count; i++)
@@ -124,7 +124,7 @@ namespace BaesianNetworks
 			isBurning = false;
 
 			//
-			Console.WriteLine("\n\n");
+			//Console.WriteLine("\n\n");
 			//
 
 
@@ -149,8 +149,8 @@ namespace BaesianNetworks
 					Console.WriteLine("ValueCount " + i + " " + valueCount[i][j]);
 
 
-			Console.WriteLine(Normalize(dataToNormalize)[0]);
-			return Normalize(dataToNormalize)[0];
+			//Console.WriteLine(Normalize(dataToNormalize)[0]);
+			return Normalize(dataToNormalize);
 		}
 
 		/// <summary>
