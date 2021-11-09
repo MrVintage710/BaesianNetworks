@@ -68,24 +68,6 @@ namespace BaesianNetworks
 			for (int i = 0; i < childrenParents.Count; i++)
 				nodeVariables.Add(childrenParents[i]);
 
-			/*// List of all variables (Mutable Evidence) under the Markov Blanket
-			List<Evidence> variables = new List<Evidence>();
-			for (int i = 0; i < parents.Count; i++)
-			{
-				Evidence tempEvidence = new Evidence(parents[i].ToString(), "");
-				variables.Add(tempEvidence);
-			}
-			for (int i = 0; i < children.Count; i++)
-			{
-				Evidence tempEvidence = new Evidence(children[i].ToString(), "");
-				variables.Add(tempEvidence);
-			}
-			for (int i = 0; i < childrenParents.Count; i++)
-			{
-				Evidence tempEvidence = new Evidence(childrenParents[i].ToString(), "");
-				variables.Add(tempEvidence);
-			}*/
-
 			// List to hold all possilbe values that each node could be
 			List<string[]> possibleValues = new List<string[]>();
 			for (int i = 0; i < nodeVariables.Count; i++)
