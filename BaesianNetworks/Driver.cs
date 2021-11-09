@@ -1,4 +1,5 @@
 using System.Security.Policy;
+using System;
 
 namespace BaesianNetworks {
     public class Driver {
@@ -35,7 +36,6 @@ namespace BaesianNetworks {
             BaesNetwork alarm = new BaesNetwork("alarm.bif");
             // No Evidence -----------------------
             // VEsolver.solve("HYPOVOLEMIA", alarm); 
-            GibsSolver.solve("HYPOVOLEMIA", alarm);
             // VEsolver.solve("LVFAILURE", alarm); 
             GibsSolver.solve("LVFAILURE", alarm);
             // VEsolver.solve("ERRLOWOUTPUT", alarm);
@@ -85,8 +85,8 @@ namespace BaesianNetworks {
             GibsSolver.solve("SatContMoist" + LE_hailfinder, hailfinder);
             // VEsolver.solve("LLIW" + LE_hailfinder, hailfinder); 
             GibsSolver.solve("LLIW" + LE_hailfinder, hailfinder); 
-            // Little Evidence -------------------------------
-            string MO_hailfinder = ",CombVerMo=Down, AreaMeso_ALS=Down, CurPropConv=Strong"; 
+            // Moderate Evidence -------------------------------
+            string MO_hailfinder = LE_hailfinder + ",CombVerMo=Down,\"AreaMeso_ALS\"=Down,CurPropConv=Strong"; 
             // VEsolver.solve("SatContMoist" + MO_hailfinder, hailfinder); 
             GibsSolver.solve("SatContMoist" + MO_hailfinder, hailfinder);
             // VEsolver.solve("LLIW" + MO_hailfinder, hailfinder); 
@@ -122,12 +122,12 @@ namespace BaesianNetworks {
             BaesNetwork win95pts = new BaesNetwork("win95pts.bif");
             string[] report_win = new[] {"Problem1", "Problem2", "Problem3", "Problem4", "Problem5", "Problem6"};
             string[] evidence_win = new[] {
-                "", "Problem1=No_Output", "Problem2=Too_Long", "Problem3=No", "Problem4=No", "Problem5=No", "Problem6=Yes"
+                "Problem1=\"No_Output\"", "Problem2=\"Too_Long\"", "Problem3=No", "Problem4=No", "Problem5=No", "Problem6=Yes"
             };
             foreach (string rep in report_win) {
                 foreach (string evi in evidence_win) {
-                    //VEsolver.solve(rep+evi, win95pts);
-                    GibsSolver.solve(rep+evi, win95pts);
+                    //VE.solve(rep + "|" + evi, win95pts);
+                    GibsSolver.solve(rep + "|" + evi, win95pts);
                 }
             }
         } 

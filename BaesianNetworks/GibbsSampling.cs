@@ -17,10 +17,11 @@ namespace BaesianNetworks
 		// Variable to determine if a burn is in progress
 		bool isBurning;
 
-		public double solve(string _query, BaesNetwork _network)
+		public Report solve(string _query, BaesNetwork _network)
 		{
 			// The query split into given evidence and variables
 			Tuple<string[], Evidence[]> data = QueryParser.parseQuery(_query, _network);
+			string variable = data.Item1[0];
 
 			// Keeps track of original query
 			for (int i = 0; i < data.Item1.Length; i++)
@@ -30,9 +31,7 @@ namespace BaesianNetworks
 			List<Evidence> fixedEvidence = new List<Evidence>();
 			for (int i = 0; i < data.Item2.Length; i++)
 				fixedEvidence.Add(data.Item2[i]);
-
-
-
+			
 			// FINDING MARKOV BLANKET
 
 			// The initial nodes passed in by the query
@@ -80,9 +79,7 @@ namespace BaesianNetworks
 				string[] tempPossibleValues = nodeVariables[i].GetValues();
 				possibleValues.Add(tempPossibleValues);
             }
-
-
-
+			
 			// INITIAL STATE
 
 			// Creates the initial starting state
@@ -96,18 +93,14 @@ namespace BaesianNetworks
 			for (int i = 0; i < fixedEvidence.Count; i++)
 				initialState.Add(fixedEvidence[i].GetValue());
 
-
-
 			// SAMPLING
-
-
-			//
+			/*//
 			for (int i = 0; i < initialState.Count; i++)
 			{
 				Console.WriteLine(initialState[i]);
 			}
 			Console.WriteLine("\n\n");
-			//
+			//*/
 
 			List<int[]> valueCount = new List<int[]>();
 			for (int i = 0; i < possibleValues.Count; i++)
@@ -119,19 +112,19 @@ namespace BaesianNetworks
 			// Burn the first 'i' samples
 			isBurning = true;
 			List<string> burnState = Sample(5000, nodeVariables, fixedEvidence, possibleValues, valueCount, initialState);
-			for (int i = 0; i < burnState.Count; i++)
-				Console.WriteLine(burnState[i]);
+			//for (int i = 0; i < burnState.Count; i++) 
+				//Console.WriteLine(burnState[i]);
 			isBurning = false;
 
 			//
-			Console.WriteLine("\n\n");
+			//Console.WriteLine("\n\n");
 			//
 
 
 			// Start collecting more relevant samples
 			List<string> finalState = Sample(5000, nodeVariables, fixedEvidence, possibleValues, valueCount, burnState);
-			for (int i = 0; i < finalState.Count; i++)
-				Console.WriteLine(finalState[i]);
+			//for (int i = 0; i < finalState.Count; i++)
+				//Console.WriteLine(finalState[i]);
 
 			// Creates a list of data that needs to be normalized
 			List<int> dataToNormalize = new List<int>();
@@ -144,13 +137,16 @@ namespace BaesianNetworks
 				}
 			}
 
-			for (int i = 0; i < valueCount.Count; i++)
-				for (int j = 0; j < valueCount[i].Length; j++)
-					Console.WriteLine("ValueCount " + i + " " + valueCount[i][j]);
+			//for (int i = 0; i < valueCount.Count; i++)
+				//for (int j = 0; j < valueCount[i].Length; j++)
+					//Console.WriteLine("ValueCount " + i + " " + valueCount[i][j]);
 
 
-			Console.WriteLine(Normalize(dataToNormalize)[0]);
-			return Normalize(dataToNormalize)[0];
+			//Console.WriteLine(Normalize(dataToNormalize)[0]);
+			Report report = new Report();
+			report.addValue(variable,Normalize(dataToNormalize).ToArray());
+			Console.WriteLine(report);
+			return report;
 		}
 
 		/// <summary>
