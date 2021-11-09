@@ -5,12 +5,20 @@ using System.Linq;
 
 namespace BaesianNetworks {
 	
+	/// <summary>
+	/// The factor works like a function that returns a cell in a matrix. It can do 2 things, Solve its own subproblem
+	/// given some evidance, and it can tell you what evidence it needs.
+	/// Say you have P(A | B), the factor of that would be a matrix holding all of the probabilities of A.
+	/// </summary>
 	public interface Factor {
 		double solve(params Evidence[] evidence);
 
 		string[] reliesOn();
 	}
 
+	/// <summary>
+	/// This BaseFactor is the case where the facotor is representing a probability like P(A | B)
+	/// </summary>
 	public class BaseFactor : Factor {
 		private BaesNode node;
 
@@ -45,6 +53,11 @@ namespace BaesianNetworks {
 		}
 	}
 
+	
+	/// <summary>
+	/// The FactorSumation is a facotor that represents sumations in the VE equations. It solves all of its sub variables, multiplies
+	/// them, and then add up the two versions. This is the part of the program that is slow.
+	/// </summary>
 	public class FactorSumation : Factor {
 		private BaesNode node;
 		private Factor[] factors;

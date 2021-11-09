@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace BaesianNetworks {
+	/// <summary>
+	/// This represents a probability table iside of the bayesian network
+	/// </summary>
 	public class BaesNode {
 		private string name;
 		private string[] values; 
@@ -15,12 +18,20 @@ namespace BaesianNetworks {
 			this.name = name;
 		}
 
+		/// <summary>
+		/// Adds a child to the node.
+		/// </summary>
+		/// <param name="nodes"></param>
 		public void addChildren(params BaesNode[] nodes) {
 			foreach (var node in nodes) {
 				if(!children.Contains(node)) children.AddRange(nodes);
 			}
 		}
-		
+
+		/// <summary>
+		/// Adds a parrent to the given node
+		/// </summary>
+		/// <param name="nodes"></param>
 		public void addParents(params BaesNode[] nodes) {
 			foreach (var node in nodes) {
 				if(!parents.Contains(node)) parents.AddRange(nodes);
@@ -30,22 +41,44 @@ namespace BaesianNetworks {
 			tableEntries.Clear();
 		}
 
+		/// <summary>
+		/// Adds an entry in the table. The number of values should be equal to the number of parents.
+		/// </summary>
+		/// <param name="values"></param>
+		/// <param name="probability"></param>
 		public void addEntry(int[] values, double[] probability) {
 			tableEntries.Add(new TableEntry(values, probability));
 		}
 
+		/// <summary>
+		/// Returns the children of the Node
+		/// </summary>
+		/// <returns></returns>
 		public BaesNode[] getChildren() {
 			return children.ToArray();
 		}
 		
+		/// <summary>
+		/// returns the parents of the node.
+		/// </summary>
+		/// <returns></returns>
 		public BaesNode[] getParents() {
 			return parents.ToArray();
 		}
 
+		/// <summary>
+		/// Returns the names of the parrents.
+		/// </summary>
+		/// <returns></returns>
 		public string[] getParentNames() {
 			return parents.Select(p => p.getVariableName()).ToArray();
 		}
 
+		/// <summary>
+		/// This method and its overrides reference the probability tables and returns the probability given evidence
+		/// </summary>
+		/// <param name="parentValues"></param>
+		/// <returns></returns>
 		public double[] getProbabilities(params int[] parentValues) {
 			if (parentValues.Length != getDepth()) return new double[]{};
 			foreach (var entry in tableEntries) {
@@ -73,10 +106,20 @@ namespace BaesianNetworks {
 			return getProbabilities(parentValues.ToArray());
 		}
 
+		/// <summary>
+		/// Gets the value at a given index.
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
 		public string getValue(int index) {
 			return values[index];
 		}
 
+		/// <summary>
+		/// Gives the index of a variable given the variable name.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
 		public int getIndex(string value) {
 			for (var i = 0; i < values.Length; i++) {
 				if (values[i].ToLower() == value.ToLower()) return i;

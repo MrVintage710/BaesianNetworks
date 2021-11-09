@@ -2,6 +2,10 @@ using System;
 using System.Diagnostics.Eventing.Reader;
 
 namespace BaesianNetworks {
+	/// <summary>
+	/// This class was made to assist the bif parser. It goes through the file, character but character, and reports
+	/// important information about the file.
+	/// </summary>
 	public class ParceManager {
 
 		private string baseString;

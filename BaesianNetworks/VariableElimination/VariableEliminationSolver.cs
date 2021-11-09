@@ -7,11 +7,26 @@ using System.Linq;
 namespace BaesianNetworks {
 	public class VariableEliminationSolver : BayesianSolver {
 		
+		/// <summary>
+		/// The implemented solve class, This returns the result of the Algorithm.
+		/// </summary>
+		/// <param name="statement"></param>
+		/// <param name="network"></param>
+		/// <returns></returns>
 		public Report solve(string statement, BaesNetwork network) {
 			var split = QueryParser.parseQuery(statement, network);
 			return processQuery(statement, split.Item1, split.Item2, network);
 		}
 
+		/// <summary>
+		/// This method sets up the variable elimination equation and steps through each summation to solve it.
+		/// For each member in the equation there is a factor class that computes the equation.
+		/// </summary>
+		/// <param name="statement"></param>
+		/// <param name="variables"></param>
+		/// <param name="evidence"></param>
+		/// <param name="network"></param>
+		/// <returns></returns>
 		private Report processQuery(string statement, string[] variables, Evidence[] evidence, BaesNetwork network) {
 			IEnumerable<string> names = variables.Concat(evidence.Select(evidence1 => evidence1.GetName()));
 			// Hidden Variables are all the variables not in the current query

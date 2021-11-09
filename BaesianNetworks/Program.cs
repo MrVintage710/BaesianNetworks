@@ -7,12 +7,12 @@ namespace BaesianNetworks {
 	internal class Program {
 		public static void Main(string[] args) {
 			var solver = new VariableEliminationSolver();
-			var net = new BaesNetwork("child.bif");
+			var net = new BaesNetwork("test.bif");
 
-			var report = solver.solve("Disease|LowerBodyO2=\"LT_5\",RUQO2=/\"12_OR_MORE\",CO2Report=\"LTEQ_7.5\",XrayReport=\"Asy/Patchy\"", net);
-			Console.WriteLine(report);
+			//var report = solver.solve("HYPOVOLEMIA|HRBP=HIGH,CO=LOW,BP=HIGH,HRSAT=LOW,HREKG=LOW,HISTORY=TRUE", net);
+			//Console.WriteLine(report);
 			
-			//exampleVEProcess(net);
+			exampleVEProcess(net);
 		}
 		
 		/// <summary>
